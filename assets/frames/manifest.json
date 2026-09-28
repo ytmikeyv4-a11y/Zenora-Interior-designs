@@ -1,0 +1,89 @@
+{
+  "frameCount": 1738,
+  "format": "webp",
+  "prefix": "frame_",
+  "digits": 4,
+  "resolution": "1920x1080",
+  "chapters": [
+    {
+      "num": 1,
+      "id": "sec-ch1",
+      "room": "THE EXTERIOR SANCTUARY",
+      "subtitle": "Terrace Pergola & Courtyard Arrival",
+      "startPct": 0.0,
+      "endPct": 0.145
+    },
+    {
+      "num": 2,
+      "id": "sec-ch2",
+      "room": "THE GRAND FOYER",
+      "subtitle": "High-Ceiling Corridor & Art Gallery",
+      "startPct": 0.145,
+      "endPct": 0.238
+    },
+    {
+      "num": 3,
+      "id": "sec-ch3",
+      "room": "LIVING ROOM I // THE PAVILION",
+      "subtitle": "Barcelona Leather & Sunlit Glass",
+      "startPct": 0.238,
+      "endPct": 0.314
+    },
+    {
+      "num": 4,
+      "id": "sec-ch4",
+      "room": "LIVING ROOM II // THE BOUCL\u00c9 LOUNGE",
+      "subtitle": "Curved Organic Sofa & Marble Detailing",
+      "startPct": 0.314,
+      "endPct": 0.465
+    },
+    {
+      "num": 5,
+      "id": "sec-ch5",
+      "room": "LIVING ROOM III // CLASSICAL SALON",
+      "subtitle": "Boiserie Moldings & Emerald Velvet",
+      "startPct": 0.465,
+      "endPct": 0.581
+    },
+    {
+      "num": 6,
+      "id": "sec-ch6",
+      "room": "DINING & BESPOKE LIBRARY",
+      "subtitle": "Halo Luminaire & Geometric Joinery",
+      "startPct": 0.581,
+      "endPct": 0.674
+    },
+    {
+      "num": 7,
+      "id": "sec-ch7",
+      "room": "FLOATING MARBLE STAIRCASE",
+      "subtitle": "Illuminated Steps & Fluted Atrium",
+      "startPct": 0.674,
+      "endPct": 0.808
+    },
+    {
+      "num": 8,
+      "id": "sec-ch8",
+      "room": "THE EXECUTIVE MASTER SUITE",
+      "subtitle": "Fluted Oak Paneling & Cove Lighting",
+      "startPct": 0.808,
+      "endPct": 0.884
+    },
+    {
+      "num": 9,
+      "id": "sec-ch9",
+      "room": "VANITY & PRIVATE STUDY NOOK",
+      "subtitle": "Private Dressing & Bespoke Workstation",
+      "startPct": 0.884,
+      "endPct": 0.965
+    },
+    {
+      "num": 10,
+      "id": "sec-cta",
+      "room": "ZENORA CONCIERGE",
+      "subtitle": "VIP Consultation & Direct Inquiries",
+      "startPct": 0.965,
+      "endPct": 1.0
+    }
+  ]
+}

@@ -1,0 +1,636 @@
+/* ==========================================================================
+   ZENORA DESIGNS // LUXURY ARCHITECTURAL SCROLL SHOWCASE (BMW M4 DNA)
+   1,738 Ultra HD Frames · 3 Living Rooms · Floating Cinematic Typography
+   ========================================================================== */
+
+:root {
+  --bg-dark: #080706;
+  --bg-surface: rgba(18, 16, 14, 0.82);
+  --border-subtle: rgba(212, 175, 55, 0.22);
+
+  /* Authentic Zenora Metallic Gold Palette */
+  --gold-primary: #D4AF37;
+  --gold-light: #F9E8BF;
+  --gold-dark: #9A7B4F;
+  --gold-glow: rgba(212, 175, 55, 0.4);
+  --gold-gradient: linear-gradient(135deg, #FFF6E5 0%, #D4AF37 50%, #9A7B4F 100%);
+
+  /* Typography Colors */
+  --text-primary: #F8FAF8;
+  --text-muted: #A39B92;
+
+  /* Typography Systems (BMW M4 Inspired) */
+  --font-heading: 'Syncopate', sans-serif;
+  --font-cinzel: 'Cinzel', serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+body {
+  position: relative;
+  background-color: var(--bg-dark);
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   PRELOADER
+   ========================================================================== */
+#preloader {
+  position: fixed;
+  inset: 0;
+  background-color: #060504;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+}
+
+#preloader.loaded {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.zenora-loader-icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 4px 18px rgba(212, 175, 55, 0.5));
+  animation: pulseLoader 2s infinite ease-in-out;
+}
+
+@keyframes pulseLoader {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 6px 25px rgba(249, 232, 191, 0.7)); }
+}
+
+.preloader-title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 7px;
+  color: #FFF;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.preloader-sub {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  color: var(--gold-light);
+  margin-bottom: 1.8rem;
+  text-transform: uppercase;
+}
+
+.preloader-bar-bg {
+  width: 280px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.preloader-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold-primary), var(--gold-light));
+  transition: width 0.08s linear;
+}
+
+/* ==========================================================================
+   FIXED HEADER (BMW M4 Inspired Translucent Bar)
+   ========================================================================== */
+.zenora-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 75px;
+  padding: 0 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
+  background: linear-gradient(180deg, rgba(8, 7, 6, 0.92) 0%, rgba(8, 7, 6, 0.55) 75%, transparent 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.header-logo-svg {
+  height: 38px;
+  width: auto;
+  filter: drop-shadow(0 2px 10px rgba(212, 175, 55, 0.35));
+}
+
+.header-brand-text {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 4px;
+  color: #FFF;
+  text-transform: uppercase;
+}
+
+.header-brand-sub {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 2px;
+  color: var(--gold-light);
+  margin-top: 0.15rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-header-wa {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34D399;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  padding: 0.55rem 1.3rem;
+  border-radius: 20px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+.btn-header-wa:hover {
+  background: #10B981;
+  color: #060504;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-header-cta {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold-primary));
+  color: #0A0908;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  padding: 0.58rem 1.4rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+}
+
+.btn-header-cta:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 6px 22px rgba(212, 175, 55, 0.45);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   CANVAS VIEWPORT (Full Screen 100% Unobstructed Cinema)
+   ========================================================================== */
+.canvas-sticky-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+#home-canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.canvas-overlay-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 38%, rgba(8, 7, 6, 0.78) 100%);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   SCROLL DISTANCE
+   ========================================================================== */
+#scroll-container {
+  position: relative;
+  width: 100%;
+  height: 3500vh;
+  z-index: 20;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   STORY OVERLAYS (BMW M4 DNA: Pure Cinematic Floating Typography)
+   ========================================================================== */
+.story-section {
+  position: fixed;
+  top: 75px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 2rem 4.5rem;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 30;
+  will-change: opacity, transform;
+}
+
+.story-section.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.story-section.align-left {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.story-section.align-right {
+  justify-content: flex-end;
+  text-align: left;
+}
+
+.story-section.align-center {
+  justify-content: center;
+  text-align: center;
+}
+
+/* Floating content container without bounding box */
+.floating-story-wrap {
+  max-width: 680px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Tagline Pills */
+.tagline-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 3px;
+  color: var(--gold-light);
+  text-transform: uppercase;
+  margin-bottom: 0.85rem;
+  padding: 0.35rem 0.95rem;
+  border-radius: 4px;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+/* Grand Headlines */
+.main-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.4rem, 5.5vw, 4.4rem);
+  font-weight: 800;
+  letter-spacing: 3px;
+  line-height: 1.05;
+  margin-bottom: 1.25rem;
+  text-transform: uppercase;
+  text-shadow: 0 4px 25px rgba(0, 0, 0, 0.92);
+}
+
+.gold-gradient-text {
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 35px var(--gold-glow);
+}
+
+.hero-description {
+  font-size: 1.05rem;
+  color: #E2DDD9;
+  line-height: 1.65;
+  max-width: 580px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95);
+  margin-bottom: 1.5rem;
+}
+
+.gold-highlight {
+  color: var(--gold-light);
+  font-weight: 600;
+}
+
+/* Hero Action Buttons */
+.hero-actions-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.btn-hero-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.8rem;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: #FFF;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+.btn-hero-wa:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.55);
+}
+
+.btn-hero-call {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.6rem;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: var(--gold-light);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+.btn-hero-call:hover {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: var(--gold-primary);
+  color: #FFF;
+  transform: translateY(-2px);
+}
+
+/* Minimal Scroll Cue */
+.scroll-cue-minimal {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.cue-mouse {
+  width: 16px;
+  height: 26px;
+  border: 1.5px solid rgba(212, 175, 55, 0.6);
+  border-radius: 9px;
+  position: relative;
+}
+
+.cue-wheel {
+  width: 3px;
+  height: 5px;
+  background: var(--gold-light);
+  border-radius: 2px;
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: mouseWheelMove 1.8s infinite ease-in-out;
+}
+
+@keyframes mouseWheelMove {
+  0% { top: 4px; opacity: 1; }
+  80% { top: 14px; opacity: 0; }
+  100% { top: 4px; opacity: 0; }
+}
+
+/* Minimal Spec Chips */
+.spec-row-minimal {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+}
+
+.spec-chip {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  padding: 0.45rem 1rem;
+  border-radius: 20px;
+  background: rgba(10, 9, 8, 0.75);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  backdrop-filter: blur(8px);
+  color: var(--gold-light);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+/* ==========================================================================
+   ACT 10: CHAPTER 10 - FINAL CONCIERGE & DIGITAL BUSINESS CARD
+   ========================================================================== */
+.final-cta-container {
+  max-width: 780px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.final-card-brandmark {
+  margin-bottom: 1.2rem;
+  filter: drop-shadow(0 6px 20px rgba(212, 175, 55, 0.45));
+}
+
+.final-logo-svg {
+  height: 56px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.luxury-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 2.2rem;
+}
+
+.contact-pill-card {
+  background: rgba(18, 16, 14, 0.82);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 12px;
+  padding: 0.9rem 1.2rem;
+  text-align: left;
+  backdrop-filter: blur(14px);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: all 0.25s ease;
+}
+
+.contact-pill-card.pill-interactive {
+  cursor: pointer;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.contact-pill-card.pill-interactive:hover {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: var(--gold-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+}
+
+.pill-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: var(--gold-light);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.pill-title {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #FFF;
+  letter-spacing: 1px;
+  word-break: break-all;
+}
+
+.pill-icon {
+  width: 22px;
+  height: 22px;
+  fill: var(--gold-primary);
+  flex-shrink: 0;
+}
+
+.cta-actions-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-cta-gold {
+  padding: 0.9rem 2.2rem;
+  border-radius: 30px;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold-primary));
+  color: #0A0908;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.35);
+  transition: all 0.25s ease;
+}
+
+.btn-cta-gold:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+  box-shadow: 0 12px 30px rgba(212, 175, 55, 0.5);
+}
+
+.btn-cta-secondary {
+  padding: 0.9rem 1.8rem;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: #FFF;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.25s ease;
+}
+
+.btn-cta-secondary:hover {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: var(--gold-primary);
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 768px) {
+  .story-section {
+    padding: 1.5rem 1.5rem;
+    top: 70px;
+  }
+  .main-title {
+    font-size: 2.2rem;
+  }
+  .zenora-header {
+    padding: 0 1.2rem;
+  }
+  .header-brand-sub {
+    display: none;
+  }
+}

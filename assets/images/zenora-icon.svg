@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="goldGradIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E5C287" />
+      <stop offset="50%" stop-color="#C5A880" />
+      <stop offset="100%" stop-color="#9E7A52" />
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="48" fill="#151412" stroke="url(#goldGradIcon)" stroke-width="1.5" />
+  <g transform="translate(15, 12)">
+    <!-- Stylized Chevron / Peak -->
+    <path d="M 12 60 L 35 22 L 58 60" fill="none" stroke="url(#goldGradIcon)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 20 60 L 35 34 L 50 60" fill="none" stroke="url(#goldGradIcon)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+    <!-- Central Spire & Dot -->
+    <line x1="35" y1="22" x2="35" y2="7" stroke="url(#goldGradIcon)" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="35" cy="4" r="2.5" fill="url(#goldGradIcon)"/>
+    <!-- Ground Accent Line -->
+    <line x1="8" y1="67" x2="62" y2="67" stroke="url(#goldGradIcon)" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+  </g>
+</svg>
