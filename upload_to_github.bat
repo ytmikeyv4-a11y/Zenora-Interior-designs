@@ -1,83 +1,30 @@
 @echo off
-title Zenora Designs - GitHub Uploader
-color 0b
+title Zenora Designs - Uploading to GitHub
+color 0a
 echo ================================================================
-echo      ZENORA DESIGNS // GITHUB AUTO-UPLOADER & PAGES DEPLOY
-echo ================================================================
-echo.
-echo NOTE: GitHub website par direct drag-and-drop se max 100 files
-echo hi upload ho sakti hain.
-echo.
-echo Hamare project me 1,738 animation frames (total ~159 MB) hain.
-echo Yeh script Git command line se saari files ko bina kisi error
-echo ke ek hi baar me aapke GitHub account par upload kar dega!
-echo.
-echo ================================================================
-echo STEP 1: Pehle apne browser me https://github.com/new kholein.
-echo         - Repository name rakhein (e.g. zenora-luxury-interiors)
-echo         - Public select karein.
-echo         - "Add README", ".gitignore" SAB UNCHECKED rakhein.
-echo         - "Create repository" button dabayein.
-echo.
-echo STEP 2: Nayi bani hui Repo ka HTTPS link copy karke yahan paste karein.
-echo         (Example: https://github.com/username/zenora-luxury-interiors.git)
+echo    ZENORA DESIGNS // UPLOADING TO GITHUB
+echo    Repo: https://github.com/ytmikeyv4-a11y/Zenora-Interior-designs
 echo ================================================================
 echo.
-
-set /p REPO_URL="GitHub Repository URL paste karein: "
-
-if "%REPO_URL%"=="" (
-    echo.
-    echo [ERROR] Koi URL enter nahi kiya gaya!
-    pause
-    exit /b
-)
-
-cd /d "C:\Users\Alan Thomas\Desktop\My Projects\Zenora-Luxury-Interiors"
-
+echo Saari 1,738 files (159 MB) upload ho rahi hain...
+echo (Agar pehli baar browser me login popup aaye toh "Sign in with browser" dabayein)
 echo.
-echo [1/5] Large 159MB upload ke liye Git buffer badha rahe hain...
-git config --global http.postBuffer 524288000
-git config --global http.maxRequestBuffer 524288000
-
-echo.
-echo [2/5] Git repository setup kar rahe hain...
-if not exist .git (
-    git init -b main
-) else (
-    git checkout -B main
-)
-
-echo.
-echo [3/5] Saare 1,738 frames aur files add kar rahe hain (10-20 seconds)...
-git add .
-
-echo.
-echo [4/5] Commit banaya ja raha hai...
-git commit -m "Deploy: Zenora Luxury Interior 3D Walkthrough (1,738 HD Frames)"
-
-echo.
-echo [5/5] GitHub par push ho raha hai (internet speed ke hisab se 1-2 min)...
-git remote remove origin 2>nul
-git remote add origin %REPO_URL%
-git branch -M main
+cd /d "%~dp0"
+git config http.postBuffer 524288000
 git push -u origin main
-
 echo.
 echo ================================================================
 if %ERRORLEVEL% EQU 0 (
-    echo   [SUCCESS!] Saari files successfully GitHub par upload ho gayi!
+    echo   [SUCCESS!] Saari files successfully upload ho gayi hain!
     echo.
-    echo   AB FREE LIVE SHAREABLE LINK BANANE KE LIYE:
-    echo   1. GitHub par apni repo page par jayein.
-    echo   2. Upar "Settings" tab par click karein.
-    echo   3. Left sidebar me "Pages" par click karein.
-    echo   4. "Branch" option me "main" select karein aur "Save" dabayein.
-    echo   5. 1-2 minute me aapki live working link ready ho jayegi!
-    echo      Aap is link ko WhatsApp par kisi ko bhi bhej sakte hain!
+    echo   AB FREE LIVE LINK BANANE KE LIYE:
+    echo   1. Is link par jayein:
+    echo      https://github.com/ytmikeyv4-a11y/Zenora-Interior-designs/settings/pages
+    echo   2. "Branch" ke dropdown me "main" select karein aur "Save" dabayein.
+    echo   3. 1 minute me aapki live working link ready ho jayegi:
+    echo      https://ytmikeyv4-a11y.github.io/Zenora-Interior-designs/
 ) else (
-    echo   [NOTICE] Agar GitHub login popup aaye toh 'Sign in with your browser'
-    echo   par click karke login approve karein, fir yeh upload complete ho jayega.
+    echo   [ERROR] Upload me koi dikkat aayi.
 )
 echo ================================================================
 echo.
