@@ -146,9 +146,7 @@ body.scroll-locked #preloader {
   align-items: center;
   justify-content: space-between;
   z-index: 100;
-  background: linear-gradient(180deg, rgba(8, 7, 6, 0.92) 0%, rgba(8, 7, 6, 0.55) 75%, transparent 100%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(8, 7, 6, 0.95);
   border-bottom: 1px solid rgba(212, 175, 55, 0.15);
 }
 
@@ -293,15 +291,15 @@ body.scroll-locked #preloader {
   padding: 2rem 4.5rem;
   pointer-events: none;
   opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(12px) translateZ(0);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
   z-index: 30;
   will-change: opacity, transform;
 }
 
 .story-section.active {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) translateZ(0);
   pointer-events: auto;
 }
 
@@ -325,6 +323,7 @@ body.scroll-locked #preloader {
   max-width: 680px;
   position: relative;
   z-index: 2;
+  transform: translateZ(0);
 }
 
 /* Tagline Pills */
@@ -340,9 +339,8 @@ body.scroll-locked #preloader {
   margin-bottom: 0.85rem;
   padding: 0.35rem 0.95rem;
   border-radius: 4px;
-  background: rgba(212, 175, 55, 0.12);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  backdrop-filter: blur(8px);
+  background: rgba(18, 16, 12, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.35);
 }
 
 /* Grand Headlines */
@@ -488,9 +486,8 @@ body.scroll-locked #preloader {
   letter-spacing: 2px;
   padding: 0.45rem 1rem;
   border-radius: 20px;
-  background: rgba(10, 9, 8, 0.75);
+  background: rgba(12, 11, 10, 0.9);
   border: 1px solid rgba(212, 175, 55, 0.3);
-  backdrop-filter: blur(8px);
   color: var(--gold-light);
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
@@ -524,12 +521,11 @@ body.scroll-locked #preloader {
 }
 
 .contact-pill-card {
-  background: rgba(18, 16, 14, 0.82);
+  background: rgba(16, 14, 12, 0.92);
   border: 1px solid rgba(212, 175, 55, 0.25);
   border-radius: 12px;
   padding: 0.9rem 1.2rem;
   text-align: left;
-  backdrop-filter: blur(14px);
   text-decoration: none;
   color: inherit;
   display: flex;
@@ -639,8 +635,7 @@ body.scroll-locked #preloader {
   .zenora-header {
     height: 60px;
     padding: 0 1rem;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    background: rgba(8, 7, 6, 0.96);
   }
 
   .header-brand {
@@ -705,13 +700,11 @@ body.scroll-locked #preloader {
     max-height: calc(100vh - 85px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    background: rgba(8, 7, 6, 0.62);
-    border: 1px solid rgba(212, 175, 55, 0.25);
+    background: rgba(10, 9, 8, 0.92);
+    border: 1px solid rgba(212, 175, 55, 0.28);
     border-radius: 18px;
     padding: 1.25rem 1.15rem;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.85);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
     scrollbar-width: none;
   }
   .floating-story-wrap::-webkit-scrollbar {
@@ -774,11 +767,10 @@ body.scroll-locked #preloader {
   .final-cta-container {
     padding: 1.6rem 1.1rem;
     max-width: 100%;
-    background: rgba(8, 7, 6, 0.65);
-    border: 1px solid rgba(212, 175, 55, 0.22);
+    background: rgba(10, 9, 8, 0.94);
+    border: 1px solid rgba(212, 175, 55, 0.25);
     border-radius: 20px;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
   }
 
   .final-logo-svg {
