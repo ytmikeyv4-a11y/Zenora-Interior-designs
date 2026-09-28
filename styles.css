@@ -272,7 +272,7 @@ body.scroll-locked #preloader {
 #scroll-container {
   position: relative;
   width: 100%;
-  height: 2200vh;
+  height: 1200vh;
   z-index: 20;
   pointer-events: none;
 }
@@ -671,7 +671,7 @@ body.scroll-locked #preloader {
 
   /* Mobile optimized scroll distance for natural thumb scrubbing */
   #scroll-container {
-    height: 1400vh;
+    height: 850vh;
   }
 
   /* Story Sections on Mobile */
