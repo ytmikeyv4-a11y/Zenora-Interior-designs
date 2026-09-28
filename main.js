@@ -1,11 +1,9 @@
 /* ==========================================================================
-   ZENORA DESIGNS // VELVET HYDRAULIC 60/120FPS 3D WALKTHROUGH ENGINE
-   - 240 Master-Curated HD Frames (Only 6.88 MB Total Payload)
-   - 100% In-Memory Preloaded (Zero network requests while scrolling)
-   - Velvet Hydraulic Mouse Wheel Inertia (Damped exponential glide)
-   - Dual-Stage Liquid Frame Smoothing (Apple-Grade continuous sweep)
-   - 100% Native Mobile Touch Momentum (Silky 120Hz ProMotion response)
-   - Direct GPU Blitting (0.05ms frame render time)
+   ZENORA DESIGNS // LUXURY HOME TOUR SCROLL ENGINE (1,738 HD FRAMES)
+   3 Architectural Living Rooms + 7 Grand Suites & Atriums
+   Decoupled 60/120FPS RAF Engine with Ultra-Smooth Weighted Scrub
+   BMW M4 Floating Minimalist Luxury DNA · Pure Cinematic Walkthrough
+   Powered by GSAP ScrollTrigger & Lenis Smooth Scroll
    ========================================================================== */
 
 // Prevent browser restoring previous scroll position upon refresh
@@ -22,11 +20,14 @@ window.addEventListener('wheel', preventScroll, { passive: false });
 window.addEventListener('touchmove', preventScroll, { passive: false, capture: true });
 
 document.addEventListener("DOMContentLoaded", () => {
+  gsap.registerPlugin(ScrollTrigger);
+
   /* --------------------------------------------------------------------------
-     1. ASSET CONFIGURATION & FAST 100% IN-MEMORY PRELOADER (6.88 MB)
+     1. ASSET CONFIGURATION & PRELOADER
      -------------------------------------------------------------------------- */
-  const TOTAL_FRAMES = 240;
-  const frames = new Array(TOTAL_FRAMES);
+  const TOTAL_FRAMES = 1738;
+  const INITIAL_THRESHOLD = 50; // Fast launch: only wait for first 50 frames (~4MB)
+  const frames = [];
   let loadedCount = 0;
   let experienceStarted = false;
   let lastValidImg = null;
@@ -35,9 +36,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const preloaderBar = document.getElementById("preloaderBar");
   const preloaderSubText = document.getElementById("preloaderSubText");
   const canvas = document.getElementById("home-canvas");
-  const ctx = canvas.getContext("2d", { alpha: false }); // Alpha-free GPU performance boost
+  const ctx = canvas.getContext("2d");
 
-  const getFramePath = (i) => `assets/tour_frames/frame_${String(i + 1).padStart(4, '0')}.webp`;
+  const getFramePath = (i) => `assets/frames/frame_${String(i).padStart(4, '0')}.webp`;
 
   function launchExperience() {
     if (experienceStarted) return;
@@ -49,81 +50,68 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.remove("scroll-locked");
     window.scrollTo(0, 0);
 
-    targetScrollY = 0;
-    currentScrollY = 0;
-    currentFrame = 0;
-    targetFrame = 0;
-    lastDrawnIndex = -1;
-
-    // Fade out preloader smoothly
-    if (preloader) {
-      preloader.classList.add("loaded");
-    }
-
-    // Attach velvet hydraulic mouse wheel listener
-    setupVelvetWheelScroller();
-
-    // Start RAF loop and initial render
-    drawCanvasFrame(0);
-    requestAnimationFrame(rafRenderLoop);
+    setTimeout(() => {
+      if (preloader) preloader.classList.add("loaded");
+      initScrollExperience();
+    }, 200);
   }
 
-  function onFrameLoaded(index, img) {
-    frames[index] = img;
+  const onAssetLoaded = () => {
     loadedCount++;
-
-    const pct = Math.round((loadedCount / TOTAL_FRAMES) * 100);
+    const pct = Math.min(100, Math.round((loadedCount / INITIAL_THRESHOLD) * 100));
     if (preloaderBar) preloaderBar.style.width = `${pct}%`;
     if (preloaderSubText) {
       preloaderSubText.textContent = `INITIALIZING 3D VILLA SANCTUARY... ${pct}%`;
     }
 
-    // Draw frame 0 immediately as soon as it arrives
-    if (index === 0 && img) {
-      lastValidImg = img;
+    // Render initial frame once first 10 frames arrive for instant visual response
+    if (loadedCount === 10 && !window.initialDrawn) {
+      window.initialDrawn = true;
+      targetFrameIdx = 0;
+      currentRenderedIdx = -1;
       drawCanvasFrame(0);
     }
 
-    // When all 240 frames are loaded
-    if (loadedCount >= TOTAL_FRAMES) {
-      setTimeout(launchExperience, 80);
-    }
-  }
-
-  // Preload all 240 frames in parallel (~6.88 MB loads in 2-3 seconds)
-  for (let i = 0; i < TOTAL_FRAMES; i++) {
-    const img = new Image();
-    img.onload = () => onFrameLoaded(i, img);
-    img.onerror = () => onFrameLoaded(i, null);
-    img.src = getFramePath(i);
-  }
-
-  // Safety fallback: if 80% loaded after 3.8s, launch experience so user never waits
-  setTimeout(() => {
-    if (!experienceStarted && loadedCount >= Math.floor(TOTAL_FRAMES * 0.8)) {
+    if (loadedCount >= INITIAL_THRESHOLD && !experienceStarted) {
       launchExperience();
     }
-  }, 3800);
+  };
+
+  // Preload all 1,738 frames (original loop)
+  for (let i = 1; i <= TOTAL_FRAMES; i++) {
+    const img = new Image();
+    img.src = getFramePath(i);
+    img.onload = onAssetLoaded;
+    img.onerror = onAssetLoaded;
+    frames.push(img);
+  }
+
+  // Safety fallback: launch experience after 3.5s if at least 15 frames arrived
+  setTimeout(() => {
+    if (!experienceStarted && loadedCount >= 15) {
+      launchExperience();
+    }
+  }, 3500);
 
   /* --------------------------------------------------------------------------
-     2. HIGH-PERFORMANCE DIRECT GPU CANVAS ENGINE
+     2. HIGH-PERFORMANCE DECOUPLED RAF CANVAS ENGINE
      -------------------------------------------------------------------------- */
+  let currentRenderedIdx = -1;
+  let targetFrameIdx = 0;
+
   const resizeCanvas = () => {
-    const isMobile = window.innerWidth <= 768;
-    const maxDpr = isMobile ? 1.25 : 1.5;
-    const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = window.innerWidth;
     const h = window.innerHeight;
-
-    canvas.width = Math.round(w * dpr);
-    canvas.height = Math.round(h * dpr);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
     ctx.scale(dpr, dpr);
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "medium";
-    lastDrawnIndex = -1; // Force repaint
+    ctx.imageSmoothingQuality = "high";
+    currentRenderedIdx = -1; // Force immediate repaint
     if (experienceStarted) {
-      drawCanvasFrame(Math.round(currentFrame));
+      drawCanvasFrame(targetFrameIdx);
     }
   };
 
@@ -131,33 +119,22 @@ document.addEventListener("DOMContentLoaded", () => {
   resizeCanvas();
 
   function drawCanvasFrame(index) {
-    if (index < 0) index = 0;
-    if (index >= TOTAL_FRAMES) index = TOTAL_FRAMES - 1;
-
+    if (index < 0 || index >= TOTAL_FRAMES) return;
     let img = frames[index];
-    if (!img || !img.complete || img.naturalWidth === 0) {
-      // Instant adjacent fallback
-      for (let d = 1; d <= 10; d++) {
-        if (frames[index - d] && frames[index - d].complete && frames[index - d].naturalWidth > 0) {
-          img = frames[index - d];
-          break;
-        }
-        if (frames[index + d] && frames[index + d].complete && frames[index + d].naturalWidth > 0) {
-          img = frames[index + d];
-          break;
-        }
-      }
-      if (!img) img = lastValidImg;
+    if (img && img.complete && img.naturalWidth > 0) {
+      lastValidImg = img;
+    } else if (lastValidImg) {
+      img = lastValidImg;
     }
 
     if (!img) return;
-    lastValidImg = img;
 
     const w = window.innerWidth;
     const h = window.innerHeight;
+    ctx.clearRect(0, 0, w, h);
 
     const screenAspect = w / h;
-    const imgAspect = 1280 / 720; // 16:9
+    const imgAspect = 1920 / 1080;
 
     let drawW, drawH, drawX, drawY;
 
@@ -165,155 +142,138 @@ document.addEventListener("DOMContentLoaded", () => {
       drawW = w;
       drawH = w / imgAspect;
       drawX = 0;
-      drawY = (h - drawH) * 0.5;
+      drawY = (h - drawH) / 2;
     } else {
       drawH = h;
       drawW = h * imgAspect;
-      drawX = (w - drawW) * 0.5;
+      drawX = (w - drawW) / 2;
       drawY = 0;
     }
 
     ctx.drawImage(img, drawX, drawY, drawW, drawH);
   }
 
+  // Dedicated RAF animation loop (Zero stutter, 60/120fps sync)
+  function rafRenderLoop() {
+    if (currentRenderedIdx !== targetFrameIdx) {
+      currentRenderedIdx = targetFrameIdx;
+      drawCanvasFrame(currentRenderedIdx);
+    }
+    requestAnimationFrame(rafRenderLoop);
+  }
+  requestAnimationFrame(rafRenderLoop);
+
   /* --------------------------------------------------------------------------
-     3. VELVET HYDRAULIC SMOOTH SCROLL ENGINE (DESKTOP & MOBILE MOMENTUM)
+     3. LENIS SMOOTH SCROLL & GSAP SCROLLTRIGGER (MAKHAN SMOOTH TUNING)
      -------------------------------------------------------------------------- */
-  let targetScrollY = 0;
-  let currentScrollY = 0;
-  let isWheelScrolling = false;
-  let wheelTimeout = null;
+  let lenisInstance = null;
 
-  let currentFrame = 0.0;
-  let targetFrame = 0.0;
-  let lastDrawnIndex = -1;
-
-  function setupVelvetWheelScroller() {
-    // Desktop Mouse Wheel: Transform harsh clicks into liquid velvet momentum
-    window.addEventListener('wheel', (e) => {
-      // Normalize wheel delta across Windows mice and Mac trackpads
-      let delta = e.deltaY;
-      if (e.deltaMode === 1) delta *= 35; // Line delta
-      else if (e.deltaMode === 2) delta *= window.innerHeight; // Page delta
-
-      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-
-      // Velvet weighted wheel multiplier (luxury dignified pacing)
-      targetScrollY = Math.max(0, Math.min(maxScroll, targetScrollY + delta * 0.82));
-      isWheelScrolling = true;
-
-      clearTimeout(wheelTimeout);
-      wheelTimeout = setTimeout(() => {
-        isWheelScrolling = false;
-      }, 500);
-
-      // Prevent harsh notchy browser jump so our velvet lerp takes over
-      e.preventDefault();
-    }, { passive: false });
-
-    // Touch, Scrollbar Drag & Keyboards: Update targetScrollY cleanly
-    window.addEventListener('scroll', () => {
-      if (!isWheelScrolling) {
-        currentScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
-        targetScrollY = currentScrollY;
-      }
-    }, { passive: true });
-  }
-
-  // DOM Elements for Storylines
-  const secCh1 = document.getElementById("sec-ch1");
-  const secCh2 = document.getElementById("sec-ch2");
-  const secCh3 = document.getElementById("sec-ch3");
-  const secCh4 = document.getElementById("sec-ch4");
-  const secCh5 = document.getElementById("sec-ch5");
-  const secCh6 = document.getElementById("sec-ch6");
-  const secCh7 = document.getElementById("sec-ch7");
-  const secCh8 = document.getElementById("sec-ch8");
-  const secCh9 = document.getElementById("sec-ch9");
-  const secCta = document.getElementById("sec-cta");
-
-  let currentActiveSec = secCh1;
-
-  function updateActiveSection(p) {
-    let targetSec = null;
-    if (p >= 0.000 && p < 0.070) {
-      targetSec = secCh1; // Terrace Sanctuary Opening Hero
-    } else if (p >= 0.145 && p < 0.190) {
-      targetSec = secCh2; // Grand Foyer
-    } else if (p >= 0.238 && p < 0.280) {
-      targetSec = secCh3; // Living Pavilion
-    } else if (p >= 0.314 && p < 0.380) {
-      targetSec = secCh4; // Bouclé Lounge
-    } else if (p >= 0.465 && p < 0.525) {
-      targetSec = secCh5; // Classical Salon
-    } else if (p >= 0.581 && p < 0.635) {
-      targetSec = secCh6; // Dining & Library
-    } else if (p >= 0.674 && p < 0.740) {
-      targetSec = secCh7; // Floating Staircase
-    } else if (p >= 0.808 && p < 0.850) {
-      targetSec = secCh8; // Executive Suite
-    } else if (p >= 0.884 && p < 0.940) {
-      targetSec = secCh9; // Vanity & Study Nook
-    } else if (p >= 0.965) {
-      targetSec = secCta; // Zenora Concierge & Digital Card
-    }
-
-    if (targetSec !== currentActiveSec) {
-      if (currentActiveSec) currentActiveSec.classList.remove("active");
-      if (targetSec) targetSec.classList.add("active");
-      currentActiveSec = targetSec;
-    }
-  }
-
-  // Smooth contact jump
   window.scrollToContact = () => {
-    const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-    targetScrollY = maxScroll;
-    isWheelScrolling = true;
-    window.scrollTo({ top: maxScroll, behavior: "smooth" });
+    const maxScroll = document.body.scrollHeight;
+    if (lenisInstance) {
+      lenisInstance.scrollTo(maxScroll, { duration: 2.2 });
+    } else {
+      window.scrollTo({ top: maxScroll, behavior: "smooth" });
+    }
   };
 
-  // Dedicated RAF animation loop (Velvet Continuous 60/120Hz Hardware Sync)
-  function rafRenderLoop() {
-    if (experienceStarted) {
-      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  function initScrollExperience() {
+    const isMobile = window.innerWidth <= 768;
 
-      // Hydraulic Velvet Scroll Lerp (0.09 = buttery smooth exponential glide)
-      if (isWheelScrolling) {
-        const scrollDiff = targetScrollY - currentScrollY;
-        currentScrollY += scrollDiff * 0.09;
+    lenisInstance = new Lenis({
+      duration: isMobile ? 1.2 : 1.5,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      wheelMultiplier: 0.75, // Weighted, dignified, liquid scroll feel
+      touchMultiplier: isMobile ? 1.5 : 1.2
+    });
 
-        if (Math.abs(scrollDiff) < 0.4) {
-          currentScrollY = targetScrollY;
+    lenisInstance.on('scroll', ScrollTrigger.update);
+
+    gsap.ticker.add((time) => {
+      lenisInstance.raf(time * 1000);
+    });
+    gsap.ticker.lagSmoothing(0);
+
+    // Ensure we start precisely at top
+    lenisInstance.scrollTo(0, { immediate: true });
+    window.scrollTo(0, 0);
+
+    // DOM Elements for Storylines
+    const secCh1 = document.getElementById("sec-ch1");
+    const secCh2 = document.getElementById("sec-ch2");
+    const secCh3 = document.getElementById("sec-ch3");
+    const secCh4 = document.getElementById("sec-ch4");
+    const secCh5 = document.getElementById("sec-ch5");
+    const secCh6 = document.getElementById("sec-ch6");
+    const secCh7 = document.getElementById("sec-ch7");
+    const secCh8 = document.getElementById("sec-ch8");
+    const secCh9 = document.getElementById("sec-ch9");
+    const secCta = document.getElementById("sec-cta");
+
+    const allSections = [
+      secCh1, secCh2, secCh3, secCh4, secCh5,
+      secCh6, secCh7, secCh8, secCh9, secCta
+    ];
+
+    let currentActiveSec = secCh1;
+
+    function showOnlySection(activeSec) {
+      if (activeSec === currentActiveSec) return;
+      currentActiveSec = activeSec;
+      allSections.forEach(sec => {
+        if (!sec) return;
+        if (sec === activeSec) {
+          sec.classList.add("active");
+        } else {
+          sec.classList.remove("active");
         }
-
-        window.scrollTo(0, currentScrollY);
-      } else {
-        currentScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
-      }
-
-      // Normalized Progress (0.0 to 1.0)
-      const progress = Math.min(1, Math.max(0, currentScrollY / maxScroll));
-      targetFrame = progress * (TOTAL_FRAMES - 1);
-
-      // Steadycam Frame Glide (0.18 = eliminates all harsh stepping, feels like a dolly camera)
-      const frameDiff = targetFrame - currentFrame;
-      if (Math.abs(frameDiff) > 0.005) {
-        currentFrame += frameDiff * 0.18;
-      } else {
-        currentFrame = targetFrame;
-      }
-
-      const frameIdxToDraw = Math.round(currentFrame);
-      if (frameIdxToDraw !== lastDrawnIndex) {
-        lastDrawnIndex = frameIdxToDraw;
-        drawCanvasFrame(lastDrawnIndex);
-      }
-
-      // Update story overlays based on smooth progress
-      updateActiveSection(progress);
+      });
     }
 
-    requestAnimationFrame(rafRenderLoop);
+    ScrollTrigger.create({
+      trigger: "#scroll-container",
+      start: "top top",
+      end: "bottom bottom",
+      scrub: 0.25, // Buttery momentum scrub
+      onUpdate: (self) => {
+        const p = self.progress;
+
+        // Update target frame for decoupled RAF loop
+        targetFrameIdx = Math.min(Math.floor(p * (TOTAL_FRAMES - 1)), TOTAL_FRAMES - 1);
+
+        /* --------------------------------------------------------------------
+           COMFORTABLE READING WINDOWS + CLEAN UNBLOCKED VIEW:
+           Floating typography appears cleanly at the beginning of each scene,
+           then fades away so 100% of the screen is pure, cinematic walkthrough!
+           -------------------------------------------------------------------- */
+        if (p >= 0.000 && p < 0.070) {
+          showOnlySection(secCh1); // Terrace Sanctuary Opening Hero
+        } else if (p >= 0.145 && p < 0.190) {
+          showOnlySection(secCh2); // Grand Foyer
+        } else if (p >= 0.238 && p < 0.280) {
+          showOnlySection(secCh3); // Living Pavilion
+        } else if (p >= 0.314 && p < 0.380) {
+          showOnlySection(secCh4); // Bouclé Lounge
+        } else if (p >= 0.465 && p < 0.525) {
+          showOnlySection(secCh5); // Classical Salon
+        } else if (p >= 0.581 && p < 0.635) {
+          showOnlySection(secCh6); // Dining & Library
+        } else if (p >= 0.674 && p < 0.740) {
+          showOnlySection(secCh7); // Floating Staircase
+        } else if (p >= 0.808 && p < 0.850) {
+          showOnlySection(secCh8); // Executive Suite
+        } else if (p >= 0.884 && p < 0.940) {
+          showOnlySection(secCh9); // Vanity & Study Nook
+        } else if (p >= 0.965) {
+          showOnlySection(secCta); // Zenora Concierge & Digital Card
+        } else {
+          showOnlySection(null);
+        }
+      }
+    });
+
+    // Initial draw
+    drawCanvasFrame(0);
   }
 });
