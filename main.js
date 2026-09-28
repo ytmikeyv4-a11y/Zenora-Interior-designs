@@ -1,11 +1,11 @@
 /* ==========================================================================
-   ZENORA DESIGNS // NATIVE 60/120FPS GPU 3D WALKTHROUGH ENGINE
+   ZENORA DESIGNS // VELVET HYDRAULIC 60/120FPS 3D WALKTHROUGH ENGINE
    - 240 Master-Curated HD Frames (Only 6.88 MB Total Payload)
    - 100% In-Memory Preloaded (Zero network requests while scrolling)
-   - Pure Native Hardware-Accelerated Browser Scroll (Zero Lenis Hijacking)
-   - Direct 1:1 Instant Tactile Response (Zero lag, zero stickiness, zero chipakna)
-   - Liquid Steadycam Micro-Interpolation (0.35 featherweight lerp)
-   - Alpha-Free Direct GPU Blitting (0.05ms frame render time)
+   - Velvet Hydraulic Mouse Wheel Inertia (Damped exponential glide)
+   - Dual-Stage Liquid Frame Smoothing (Apple-Grade continuous sweep)
+   - 100% Native Mobile Touch Momentum (Silky 120Hz ProMotion response)
+   - Direct GPU Blitting (0.05ms frame render time)
    ========================================================================== */
 
 // Prevent browser restoring previous scroll position upon refresh
@@ -49,13 +49,21 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.remove("scroll-locked");
     window.scrollTo(0, 0);
 
+    targetScrollY = 0;
+    currentScrollY = 0;
+    currentFrame = 0;
+    targetFrame = 0;
+    lastDrawnIndex = -1;
+
     // Fade out preloader smoothly
     if (preloader) {
       preloader.classList.add("loaded");
     }
 
+    // Attach velvet hydraulic mouse wheel listener
+    setupVelvetWheelScroller();
+
     // Start RAF loop and initial render
-    lastDrawnIndex = -1;
     drawCanvasFrame(0);
     requestAnimationFrame(rafRenderLoop);
   }
@@ -98,11 +106,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }, 3800);
 
   /* --------------------------------------------------------------------------
-     2. HIGH-PERFORMANCE DIRECT GPU CANVAS ENGINE & LIQUID STEADYCAM LERP
+     2. HIGH-PERFORMANCE DIRECT GPU CANVAS ENGINE
      -------------------------------------------------------------------------- */
-  let currentFrame = 0.0;
-  let lastDrawnIndex = -1;
-
   const resizeCanvas = () => {
     const isMobile = window.innerWidth <= 768;
     const maxDpr = isMobile ? 1.25 : 1.5;
@@ -172,8 +177,49 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* --------------------------------------------------------------------------
-     3. NATIVE HARDWARE SCROLL & CHAPTER OVERLAY ENGINE
+     3. VELVET HYDRAULIC SMOOTH SCROLL ENGINE (DESKTOP & MOBILE MOMENTUM)
      -------------------------------------------------------------------------- */
+  let targetScrollY = 0;
+  let currentScrollY = 0;
+  let isWheelScrolling = false;
+  let wheelTimeout = null;
+
+  let currentFrame = 0.0;
+  let targetFrame = 0.0;
+  let lastDrawnIndex = -1;
+
+  function setupVelvetWheelScroller() {
+    // Desktop Mouse Wheel: Transform harsh clicks into liquid velvet momentum
+    window.addEventListener('wheel', (e) => {
+      // Normalize wheel delta across Windows mice and Mac trackpads
+      let delta = e.deltaY;
+      if (e.deltaMode === 1) delta *= 35; // Line delta
+      else if (e.deltaMode === 2) delta *= window.innerHeight; // Page delta
+
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+
+      // Velvet weighted wheel multiplier (luxury dignified pacing)
+      targetScrollY = Math.max(0, Math.min(maxScroll, targetScrollY + delta * 0.82));
+      isWheelScrolling = true;
+
+      clearTimeout(wheelTimeout);
+      wheelTimeout = setTimeout(() => {
+        isWheelScrolling = false;
+      }, 500);
+
+      // Prevent harsh notchy browser jump so our velvet lerp takes over
+      e.preventDefault();
+    }, { passive: false });
+
+    // Touch, Scrollbar Drag & Keyboards: Update targetScrollY cleanly
+    window.addEventListener('scroll', () => {
+      if (!isWheelScrolling) {
+        currentScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+        targetScrollY = currentScrollY;
+      }
+    }, { passive: true });
+  }
+
   // DOM Elements for Storylines
   const secCh1 = document.getElementById("sec-ch1");
   const secCh2 = document.getElementById("sec-ch2");
@@ -221,21 +267,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Smooth contact jump
   window.scrollToContact = () => {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    targetScrollY = maxScroll;
+    isWheelScrolling = true;
+    window.scrollTo({ top: maxScroll, behavior: "smooth" });
   };
 
-  // Dedicated RAF animation loop (Native 60/120Hz Hardware Sync)
+  // Dedicated RAF animation loop (Velvet Continuous 60/120Hz Hardware Sync)
   function rafRenderLoop() {
     if (experienceStarted) {
-      const scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
       const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      const targetProgress = Math.min(1, Math.max(0, scrollY / maxScroll));
-      const targetFrame = targetProgress * (TOTAL_FRAMES - 1);
 
-      // Featherweight liquid momentum (0.35 = snappy, instant response with butter-smooth camera glide)
-      const diff = targetFrame - currentFrame;
-      if (Math.abs(diff) > 0.005) {
-        currentFrame += diff * 0.35;
+      // Hydraulic Velvet Scroll Lerp (0.09 = buttery smooth exponential glide)
+      if (isWheelScrolling) {
+        const scrollDiff = targetScrollY - currentScrollY;
+        currentScrollY += scrollDiff * 0.09;
+
+        if (Math.abs(scrollDiff) < 0.4) {
+          currentScrollY = targetScrollY;
+        }
+
+        window.scrollTo(0, currentScrollY);
+      } else {
+        currentScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      }
+
+      // Normalized Progress (0.0 to 1.0)
+      const progress = Math.min(1, Math.max(0, currentScrollY / maxScroll));
+      targetFrame = progress * (TOTAL_FRAMES - 1);
+
+      // Steadycam Frame Glide (0.18 = eliminates all harsh stepping, feels like a dolly camera)
+      const frameDiff = targetFrame - currentFrame;
+      if (Math.abs(frameDiff) > 0.005) {
+        currentFrame += frameDiff * 0.18;
       } else {
         currentFrame = targetFrame;
       }
@@ -246,8 +310,8 @@ document.addEventListener("DOMContentLoaded", () => {
         drawCanvasFrame(lastDrawnIndex);
       }
 
-      // Update story section based on normalized progress
-      updateActiveSection(targetProgress);
+      // Update story overlays based on smooth progress
+      updateActiveSection(progress);
     }
 
     requestAnimationFrame(rafRenderLoop);
