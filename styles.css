@@ -70,12 +70,15 @@ body.scroll-locked #preloader {
 }
 
 /* ==========================================================================
-   PRELOADER (Luxury Architectural Cinema Showcase)
+   PRELOADER (Option 1: Executive Studio Desk with Warm Overhead Spotlight)
    ========================================================================== */
 #preloader {
   position: fixed;
   inset: 0;
-  background-color: #070605;
+  /* Multi-stop warm overhead studio downlight melting into rich Italian leather desk */
+  background: 
+    radial-gradient(ellipse 70% 55% at 50% 36%, rgba(249, 232, 191, 0.20) 0%, rgba(212, 175, 55, 0.12) 28%, rgba(45, 36, 26, 0.45) 58%, rgba(18, 15, 12, 0.95) 82%, #080706 100%),
+    linear-gradient(180deg, #120F0D 0%, #181410 40%, #0E0C0A 100%);
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -90,23 +93,53 @@ body.scroll-locked #preloader {
   pointer-events: none !important;
 }
 
-/* Ambient Radial Golden Aura */
+/* Tactile Architectural Drafting Mat / Micro-Grain Studio Texture */
+#preloader::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(rgba(212, 175, 55, 0.055) 1px, transparent 1px),
+    radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 24px 24px, 12px 12px;
+  background-position: 0 0, 6px 6px;
+  opacity: 0.85;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 42%, black 40%, transparent 95%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 42%, black 40%, transparent 95%);
+}
+
+/* Overhead Designer Lamp Soft Light Cone */
+#preloader::after {
+  content: '';
+  position: absolute;
+  top: -25%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1200px, 140vw);
+  height: 90vh;
+  background: radial-gradient(ellipse 55% 70% at 50% 0%, rgba(255, 238, 194, 0.18) 0%, rgba(212, 175, 55, 0.08) 45%, transparent 75%);
+  pointer-events: none;
+}
+
+/* Ambient Radial Golden Studio Downlight Aura */
 .preloader-ambient-glow {
   position: absolute;
-  width: 650px;
-  height: 650px;
+  width: min(850px, 95vw);
+  height: min(750px, 95vw);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, rgba(212, 175, 55, 0.03) 45%, transparent 70%);
-  top: 50%;
+  background: radial-gradient(circle, rgba(249, 232, 191, 0.22) 0%, rgba(212, 175, 55, 0.12) 32%, rgba(180, 140, 65, 0.04) 55%, transparent 75%);
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
-  animation: ambientAuraPulse 4s ease-in-out infinite alternate;
+  animation: ambientAuraPulse 5s ease-in-out infinite alternate;
+  filter: blur(25px);
 }
 
 @keyframes ambientAuraPulse {
-  0% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.7; }
-  100% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.75; }
+  100% { transform: translate(-50%, -50%) scale(1.12); opacity: 1; }
 }
 
 /* Architectural Viewport Framing Brackets (Luxury Blueprint Aesthetics) */
@@ -115,10 +148,11 @@ body.scroll-locked #preloader {
 .preloader-frame-bl,
 .preloader-frame-br {
   position: absolute;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   pointer-events: none;
-  opacity: 0.45;
+  opacity: 0.55;
+  filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.4));
   transition: opacity 0.3s ease;
 }
 
@@ -187,10 +221,11 @@ body.scroll-locked #preloader {
   will-change: transform, box-shadow;
   transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1);
   box-shadow: 
-    0 25px 65px -10px rgba(0, 0, 0, 0.95), 
-    0 0 35px rgba(212, 175, 55, 0.35), 
-    0 0 75px rgba(212, 175, 55, 0.15);
-  border: 1px solid rgba(212, 175, 55, 0.35);
+    0 30px 65px -10px rgba(0, 0, 0, 0.95), 
+    0 14px 28px -5px rgba(0, 0, 0, 0.8),
+    0 0 45px rgba(212, 175, 55, 0.35), 
+    0 0 85px rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.45);
   background-color: #0B0A08;
 }
 
@@ -198,23 +233,26 @@ body.scroll-locked #preloader {
   0% {
     transform: translateY(0px) rotateX(4deg) rotateY(-4deg) translateZ(0);
     box-shadow: 
-      0 20px 50px rgba(0, 0, 0, 0.9), 
-      0 0 30px rgba(212, 175, 55, 0.3), 
-      0 0 60px rgba(212, 175, 55, 0.12);
+      0 28px 55px rgba(0, 0, 0, 0.9), 
+      0 12px 25px rgba(0, 0, 0, 0.75),
+      0 0 35px rgba(212, 175, 55, 0.3), 
+      0 0 75px rgba(212, 175, 55, 0.12);
   }
   50% {
     transform: translateY(-9px) rotateX(-3deg) rotateY(4deg) translateZ(20px);
     box-shadow: 
-      0 34px 75px rgba(0, 0, 0, 0.98), 
-      0 0 50px rgba(249, 232, 191, 0.5), 
-      0 0 90px rgba(212, 175, 55, 0.25);
+      0 42px 85px rgba(0, 0, 0, 0.96), 
+      0 18px 35px rgba(0, 0, 0, 0.8),
+      0 0 55px rgba(249, 232, 191, 0.5), 
+      0 0 100px rgba(212, 175, 55, 0.25);
   }
   100% {
     transform: translateY(0px) rotateX(4deg) rotateY(-4deg) translateZ(0);
     box-shadow: 
-      0 20px 50px rgba(0, 0, 0, 0.9), 
-      0 0 30px rgba(212, 175, 55, 0.3), 
-      0 0 60px rgba(212, 175, 55, 0.12);
+      0 28px 55px rgba(0, 0, 0, 0.9), 
+      0 12px 25px rgba(0, 0, 0, 0.75),
+      0 0 35px rgba(212, 175, 55, 0.3), 
+      0 0 75px rgba(212, 175, 55, 0.12);
   }
 }
 
