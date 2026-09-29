@@ -38,12 +38,39 @@ document.addEventListener("DOMContentLoaded", () => {
   let lastValidImg = null;
 
   const preloader = document.getElementById("preloader");
+  const glassPlinth = document.getElementById("glassPlinth");
   const preloaderBar = document.getElementById("preloaderBar");
   const preloaderPercent = document.getElementById("preloaderPercent");
   const preloaderSubText = document.getElementById("preloaderSubText");
   const preloaderFrameCount = document.getElementById("preloaderFrameCount");
   const canvas = document.getElementById("home-canvas");
   const ctx = canvas.getContext("2d");
+
+  // Interactive 3D Apple Glass tilt physics
+  if (preloader && glassPlinth) {
+    let tiltTimeout;
+    preloader.addEventListener("mousemove", (e) => {
+      const rect = preloader.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      glassPlinth.style.animationPlayState = "paused";
+      glassPlinth.style.transform = `rotateY(${x * 32}deg) rotateX(${-y * 32}deg) translateY(-6px) translateZ(26px)`;
+      clearTimeout(tiltTimeout);
+      tiltTimeout = setTimeout(() => {
+        if (!experienceStarted && glassPlinth) {
+          glassPlinth.style.animationPlayState = "running";
+          glassPlinth.style.transform = "";
+        }
+      }, 1200);
+    }, { passive: true });
+
+    preloader.addEventListener("mouseleave", () => {
+      if (!experienceStarted && glassPlinth) {
+        glassPlinth.style.animationPlayState = "running";
+        glassPlinth.style.transform = "";
+      }
+    }, { passive: true });
+  }
 
   const getHdFramePath = (i) => `assets/frames/frame_${String(i).padStart(4, '0')}.webp`;
 
