@@ -72,7 +72,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }, { passive: true });
   }
 
-  const getHdFramePath = (i) => `assets/frames/frame_${String(i).padStart(4, '0')}.webp`;
+  const isMobileDevice = window.innerWidth <= 768;
+  const frameDir = isMobileDevice ? "assets/frames_mobile" : "assets/frames";
+  const getHdFramePath = (i) => `${frameDir}/frame_${String(i).padStart(4, '0')}.webp`;
 
   // Callback whenever any HD frame finishes loading
   function onFrameLoaded(idx, img) {
