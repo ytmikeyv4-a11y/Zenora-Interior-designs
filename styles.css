@@ -177,9 +177,9 @@ body.scroll-locked #preloader {
 
 .apple-glass-plinth {
   position: relative;
-  width: 220px;
-  height: 130px;
-  border-radius: 28px;
+  width: 175px;
+  height: 175px;
+  border-radius: 50%;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(212, 175, 55, 0.09) 45%, rgba(12, 11, 9, 0.65) 100%);
   backdrop-filter: blur(24px) saturate(190%);
   -webkit-backdrop-filter: blur(24px) saturate(190%);
@@ -231,7 +231,7 @@ body.scroll-locked #preloader {
   transform: rotate(25deg) translateX(-160%);
   animation: appleGlassSheen 4.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   pointer-events: none;
-  border-radius: 40px;
+  border-radius: 50%;
 }
 
 @keyframes appleGlassSheen {
@@ -243,7 +243,7 @@ body.scroll-locked #preloader {
 .glass-ambient-prism {
   position: absolute;
   inset: 0;
-  border-radius: 28px;
+  border-radius: 50%;
   background: 
     radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 45%),
     radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.25) 0%, transparent 55%);
@@ -255,18 +255,18 @@ body.scroll-locked #preloader {
 .glass-rim-highlight {
   position: absolute;
   inset: 0;
-  border-radius: 28px;
+  border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.35);
   pointer-events: none;
   box-shadow: inset 0 0 18px rgba(249, 232, 191, 0.18);
 }
 
-/* Zenora Architectural Logo (Large & 3D Stereoscopic Pop) */
+/* Zenora Architectural Logo (Prominent & Balanced Inside Circle) */
 .zenora-glass-logo-wrap {
   position: relative;
   z-index: 5;
-  width: 152px;
-  height: 90px;
+  width: 118px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -942,14 +942,14 @@ body.scroll-locked #preloader {
   }
 
   .apple-glass-plinth {
-    width: 175px;
-    height: 104px;
-    border-radius: 22px;
+    width: 136px;
+    height: 136px;
+    border-radius: 50%;
   }
 
   .zenora-glass-logo-wrap {
-    width: 120px;
-    height: 72px;
+    width: 92px;
+    height: 55px;
     transform: translateZ(20px);
   }
 
