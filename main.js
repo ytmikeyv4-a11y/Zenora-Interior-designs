@@ -2,8 +2,8 @@
    ZENORA DESIGNS // LUXURY ARCHITECTURAL 3D WALKTHROUGH ENGINE (1,738 FRAMES)
    Direct 1:1 Hardware-Synced Lenis Physics Engine:
    - 100% Crystal-Clear Sharpness: ZERO Alpha Blur / ZERO Double Ghosting
-   - Expanded Chapter 1 Arrival Clip: Dedicated 220-Frame Smooth Pacing Curve
-   - Upfront Chapter 1 HD Preload: 100% 60FPS Fluidity on First Touch
+   - Expanded Chapter 1 Arrival Clip: Dedicated 280-Frame Smooth Pacing Curve
+   - Upfront Chapter 1 HD Preload (First 200 Frames): 100% 60FPS Fluidity on First Touch
    - Wide Pacing Curve for Chapter 4 (Bouclé Lounge & Kitchen: Calm Spacious Pan)
    - Expanded Deceleration Curve for Chapter 9 (Majestic Vanity & Study Nook Glide)
    - Lenis Smooth Scroll & GSAP ScrollTrigger Direct 1:1 Sync
@@ -30,8 +30,8 @@ document.addEventListener("DOMContentLoaded", () => {
      -------------------------------------------------------------------------- */
   const BASE_FRAMES_COUNT = 580;
   const TOTAL_HD_FRAMES = 1738;
-  const CHAPTER1_HD_PRELOAD = 160; // Preload first 160 HD frames upfront for buttery smooth arrival!
-  const INITIAL_BASE_THRESHOLD = 160;
+  const CHAPTER1_HD_PRELOAD = 200; // Preload first 200 HD frames upfront for buttery smooth arrival!
+  const INITIAL_BASE_THRESHOLD = 180;
 
   const baseFrames = new Array(BASE_FRAMES_COUNT);
   const hdFrames = new Array(TOTAL_HD_FRAMES);
@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 1. Preload first 160 Ultra-HD frames so Chapter 1 Arrival has 100% 60FPS fluid frames ready!
+  // 1. Preload first 200 Ultra-HD frames so Chapter 1 Arrival has 100% 60FPS fluid frames ready!
   for (let i = 0; i < CHAPTER1_HD_PRELOAD; i++) {
     const img = new Image();
     img.onload = () => {
@@ -327,23 +327,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* --------------------------------------------------------------------------
-     5. PROGRESS CURVE MAPPING (EXPANDED CHAPTER 1 & CALM CHAPTER 4 & 9)
+     5. PROGRESS CURVE MAPPING (280-FRAME CHAPTER 1 & CALM CHAPTER 4 & 9)
      -------------------------------------------------------------------------- */
   function getFrameIndexFromProgress(p) {
     const clampedP = Math.min(1, Math.max(0, p));
     let frameIdx;
 
-    if (clampedP < 0.12) {
-      // Chapter 1 (Exterior Sanctuary Arrival): 0.00 to 0.12 maps to frames 0 to 220
-      // Expanded frame density: velvety smooth entry glide across 220 frames!
-      frameIdx = (clampedP / 0.12) * 220;
-    } else if (clampedP < 0.32) {
-      // Chapters 2 & 3 (Grand Foyer & Living Pavilion): 0.12 to 0.32 maps to 220 to 520
-      const subP = (clampedP - 0.12) / (0.32 - 0.12);
-      frameIdx = 220 + subP * 300;
+    if (clampedP < 0.15) {
+      // Chapter 1 (Exterior Sanctuary Arrival): 0.00 to 0.15 maps to frames 0 to 280
+      // Expanded 280-frame density: velvety smooth entry glide across exterior pergola into foyer!
+      frameIdx = (clampedP / 0.15) * 280;
+    } else if (clampedP < 0.33) {
+      // Chapters 2 & 3 (Grand Foyer & Living Pavilion): 0.15 to 0.33 maps to 280 to 520
+      const subP = (clampedP - 0.15) / (0.33 - 0.15);
+      frameIdx = 280 + subP * 240;
     } else if (clampedP < 0.48) {
-      // Chapter 4 (Bouclé Lounge & Kitchen): 0.32 to 0.48 (16% scroll track) maps to 520 to 760 (calm pan)
-      const subP = (clampedP - 0.32) / (0.48 - 0.32);
+      // Chapter 4 (Bouclé Lounge & Kitchen): 0.33 to 0.48 (15% scroll track) maps to 520 to 760 (calm pan)
+      const subP = (clampedP - 0.33) / (0.48 - 0.33);
       frameIdx = 520 + subP * 240;
     } else if (clampedP < 0.85) {
       // Chapters 5 - 8 (Salon, Dining, Staircase, Suite): 0.48 to 0.85 maps to 760 to 1500
@@ -428,13 +428,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateActiveSection(p) {
       let targetSec = null;
-      if (p >= 0.000 && p < 0.095) {
-        targetSec = secCh1; // Terrace Sanctuary Opening Hero (Expanded reading window)
-      } else if (p >= 0.130 && p < 0.200) {
+      if (p >= 0.000 && p < 0.120) {
+        targetSec = secCh1; // Terrace Sanctuary Opening Hero (Comfortable 280-frame reading window)
+      } else if (p >= 0.160 && p < 0.225) {
         targetSec = secCh2; // Grand Foyer
-      } else if (p >= 0.235 && p < 0.300) {
+      } else if (p >= 0.255 && p < 0.315) {
         targetSec = secCh3; // Living Pavilion
-      } else if (p >= 0.340 && p < 0.450) {
+      } else if (p >= 0.350 && p < 0.450) {
         targetSec = secCh4; // Bouclé Lounge (Wide, crystal-clear reading window)
       } else if (p >= 0.500 && p < 0.560) {
         targetSec = secCh5; // Classical Salon
