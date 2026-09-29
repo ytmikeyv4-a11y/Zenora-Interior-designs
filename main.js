@@ -4,9 +4,10 @@
    - 100% Full-Tour Foundation Preload (ALL 580 Frames): ZERO Missing Frames on 1st Scroll
    - Elimination of 4-5 Scroll Lag: Entire Walkthrough (Ch 1 - 9) Ready in RAM Before Launch
    - 100% Crystal-Clear Sharpness: ZERO Alpha Blur / ZERO Double Ghosting
-   - Expanded Chapter 1 Arrival Clip: Dedicated 280-Frame Smooth Pacing Curve
-   - Wide Pacing Curve for Chapter 4 (Bouclé Lounge & Kitchen: Calm Spacious Pan)
-   - Expanded Deceleration Curve for Chapter 9 (Majestic Vanity & Study Nook Glide)
+   - Chapter 1 Arrival: 280 Dedicated Frames
+   - Chapter 7 Floating Staircase: Expanded to 180 Frames (Ultra-Smooth Vertical Ascent)
+   - Chapter 9 Vanity & Study Nook: Expanded to 200 Frames (Majestic Slow Glide)
+   - Chapter 4 Bouclé Lounge & Kitchen: Calm Spacious Pan (240 Frames)
    - Lenis Smooth Scroll & GSAP ScrollTrigger Direct 1:1 Sync
    ========================================================================== */
 
@@ -323,36 +324,43 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* --------------------------------------------------------------------------
-     5. PROGRESS CURVE MAPPING (280-FRAME CHAPTER 1 & CALM CHAPTER 4 & 9)
+     5. PROGRESS CURVE MAPPING (CH 7 = 180 FRAMES, CH 9 = 200 FRAMES)
      -------------------------------------------------------------------------- */
   function getFrameIndexFromProgress(p) {
     const clampedP = Math.min(1, Math.max(0, p));
     let frameIdx;
 
-    if (clampedP < 0.15) {
-      // Chapter 1 (Exterior Sanctuary Arrival): 0.00 to 0.15 maps to frames 0 to 280
-      // Dedicated 280-frame density: velvety smooth entry glide across exterior pergola into foyer!
-      frameIdx = (clampedP / 0.15) * 280;
-    } else if (clampedP < 0.33) {
-      // Chapters 2 & 3 (Grand Foyer & Living Pavilion): 0.15 to 0.33 maps to 280 to 520
-      const subP = (clampedP - 0.15) / (0.33 - 0.15);
+    if (clampedP < 0.14) {
+      // Chapter 1 (Exterior Sanctuary Arrival): 0.00 to 0.14 -> frames 0 to 280 (280 frames)
+      frameIdx = (clampedP / 0.14) * 280;
+    } else if (clampedP < 0.30) {
+      // Chapters 2 & 3 (Grand Foyer & Living Pavilion): 0.14 to 0.30 -> frames 280 to 520 (240 frames)
+      const subP = (clampedP - 0.14) / (0.30 - 0.14);
       frameIdx = 280 + subP * 240;
-    } else if (clampedP < 0.48) {
-      // Chapter 4 (Bouclé Lounge & Kitchen): 0.33 to 0.48 (15% scroll track) maps to 520 to 760 (calm pan)
-      const subP = (clampedP - 0.33) / (0.48 - 0.33);
+    } else if (clampedP < 0.44) {
+      // Chapter 4 (Bouclé Lounge & Kitchen): 0.30 to 0.44 -> frames 520 to 760 (240 frames, calm pan)
+      const subP = (clampedP - 0.30) / (0.44 - 0.30);
       frameIdx = 520 + subP * 240;
+    } else if (clampedP < 0.65) {
+      // Chapters 5 & 6 (Classical Salon & Dining / Library): 0.44 to 0.65 -> frames 760 to 1160 (400 frames)
+      const subP = (clampedP - 0.44) / (0.65 - 0.44);
+      frameIdx = 760 + subP * 400;
+    } else if (clampedP < 0.77) {
+      // Chapter 7 (The Floating Staircase): 0.65 to 0.77 -> frames 1160 to 1340 (EXACTLY 180 FRAMES!)
+      const subP = (clampedP - 0.65) / (0.77 - 0.65);
+      frameIdx = 1160 + subP * 180;
     } else if (clampedP < 0.85) {
-      // Chapters 5 - 8 (Salon, Dining, Staircase, Suite): 0.48 to 0.85 maps to 760 to 1500
-      const subP = (clampedP - 0.48) / (0.85 - 0.48);
-      frameIdx = 760 + subP * 740;
+      // Chapter 8 (Executive Master Suite): 0.77 to 0.85 -> frames 1340 to 1480 (140 frames)
+      const subP = (clampedP - 0.77) / (0.85 - 0.77);
+      frameIdx = 1340 + subP * 140;
     } else if (clampedP < 0.96) {
-      // Chapter 9 (Vanity & Study Nook): 0.85 to 0.96 (11% scroll track) maps to 1500 to 1660 (luxurious glide)
+      // Chapter 9 (Vanity & Study Nook): 0.85 to 0.96 -> frames 1480 to 1680 (EXACTLY 200 FRAMES, ultra slow glide!)
       const subP = (clampedP - 0.85) / (0.96 - 0.85);
-      frameIdx = 1500 + subP * 160;
+      frameIdx = 1480 + subP * 200;
     } else {
-      // Final overview to CTA card: 0.96 to 1.00 maps to 1660 to 1737
+      // Final overview to CTA card: 0.96 to 1.00 -> frames 1680 to 1737 (58 frames)
       const subP = (clampedP - 0.96) / (1.00 - 0.96);
-      frameIdx = 1660 + subP * 77;
+      frameIdx = 1680 + subP * 57;
     }
 
     return Math.min(TOTAL_HD_FRAMES - 1, Math.max(0, Math.round(frameIdx)));
@@ -424,25 +432,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateActiveSection(p) {
       let targetSec = null;
-      if (p >= 0.000 && p < 0.120) {
+      if (p >= 0.000 && p < 0.115) {
         targetSec = secCh1; // Terrace Sanctuary Opening Hero (Comfortable 280-frame reading window)
-      } else if (p >= 0.160 && p < 0.225) {
+      } else if (p >= 0.150 && p < 0.210) {
         targetSec = secCh2; // Grand Foyer
-      } else if (p >= 0.255 && p < 0.315) {
+      } else if (p >= 0.235 && p < 0.290) {
         targetSec = secCh3; // Living Pavilion
-      } else if (p >= 0.350 && p < 0.450) {
+      } else if (p >= 0.320 && p < 0.420) {
         targetSec = secCh4; // Bouclé Lounge (Wide, crystal-clear reading window)
-      } else if (p >= 0.500 && p < 0.560) {
+      } else if (p >= 0.465 && p < 0.530) {
         targetSec = secCh5; // Classical Salon
-      } else if (p >= 0.610 && p < 0.670) {
+      } else if (p >= 0.560 && p < 0.630) {
         targetSec = secCh6; // Dining & Library
-      } else if (p >= 0.710 && p < 0.770) {
-        targetSec = secCh7; // Floating Staircase
-      } else if (p >= 0.805 && p < 0.850) {
+      } else if (p >= 0.670 && p < 0.755) {
+        targetSec = secCh7; // Floating Staircase (Calibrated for 180-frame ascent!)
+      } else if (p >= 0.785 && p < 0.835) {
         targetSec = secCh8; // Executive Suite
-      } else if (p >= 0.875 && p < 0.950) {
-        targetSec = secCh9; // Vanity & Study Nook (Majestic slow-motion reading window)
-      } else if (p >= 0.965) {
+      } else if (p >= 0.865 && p < 0.945) {
+        targetSec = secCh9; // Vanity & Study Nook (Majestic 200-frame slow-motion reading window)
+      } else if (p >= 0.960) {
         targetSec = secCta; // Zenora Concierge & Digital Card
       }
 
