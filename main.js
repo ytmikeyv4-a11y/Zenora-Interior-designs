@@ -364,11 +364,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof Lenis !== 'undefined') {
       try {
         lenisInstance = new Lenis({
-          duration: isMobile ? 1.0 : 1.2,
-          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          duration: isMobile ? 0.75 : 0.85,
+          easing: (t) => 1 - Math.pow(1 - t, 3.5), // Clean Quart-Out (Reaches zero cleanly, ZERO dragging asymptotic tail!)
           smoothWheel: true,
-          wheelMultiplier: 0.80, // Weighted, dignified, liquid scroll feel
-          touchMultiplier: isMobile ? 1.2 : 1.0
+          wheelMultiplier: 1.15, // Responsive, high-framerate wheel glide
+          touchMultiplier: isMobile ? 1.3 : 1.0
         });
 
         lenisInstance.on('scroll', () => {
