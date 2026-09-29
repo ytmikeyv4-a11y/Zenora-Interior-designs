@@ -1,14 +1,13 @@
 /* ==========================================================================
-   ZENORA DESIGNS // LUXURY ARCHITECTURAL 3D WALKTHROUGH ENGINE (1,738 FRAMES)
-   Direct 1:1 Hardware-Synced Lenis Physics Engine:
-   - 100% Full-Tour Foundation Preload (ALL 580 Frames): ZERO Missing Frames on 1st Scroll
-   - Elimination of 4-5 Scroll Lag: Entire Walkthrough (Ch 1 - 9) Ready in RAM Before Launch
-   - 100% Crystal-Clear Sharpness: ZERO Alpha Blur / ZERO Double Ghosting
-   - Chapter 1 Arrival: 280 Dedicated Frames
-   - Chapter 7 Floating Staircase: Expanded to 180 Frames (Ultra-Smooth Vertical Ascent)
-   - Chapter 9 Vanity & Study Nook: Expanded to 200 Frames (Majestic Slow Glide)
-   - Chapter 4 Bouclé Lounge & Kitchen: Calm Spacious Pan (240 Frames)
-   - Lenis Smooth Scroll & GSAP ScrollTrigger Direct 1:1 Sync
+   ZENORA DESIGNS // LUXURY ARCHITECTURAL 3D WALKTHROUGH ENGINE (660 FRAMES)
+   High-Performance 100% Upfront Preloaded Cinema Architecture:
+   - 100% Full-Tour Memory Preload (ALL 660 Frames): ZERO Missing Frames on 1st Scroll
+   - Complete Elimination of 2-3 Scroll Lag: Tour is 100% Ready in RAM Before Launch
+   - 100% Crystal-Clear Sharpness: Single-Frame Render, ZERO Alpha Blur / ZERO Ghosting
+   - Chapter 7 Floating Staircase: 160 Dedicated Frames (Buttery Smooth Vertical Ascent)
+   - Chapter 9 Vanity & Study Nook: 115 Dedicated Frames (Majestic Slow-Motion Luxury Glide)
+   - Chapter 1 Sanctuary Arrival: 100 Dedicated Frames
+   - Direct 1:1 Hardware-Synced Lenis Physics Engine with Decisive Clean Finish
    ========================================================================== */
 
 // 1. Prevent browser restoring previous scroll position upon refresh
@@ -28,15 +27,13 @@ if (document.body) document.body.classList.add("scroll-locked");
 
 document.addEventListener("DOMContentLoaded", () => {
   /* --------------------------------------------------------------------------
-     1. ASSET CONFIGURATION & 100% FULL-TOUR FOUNDATION PRELOADER
+     1. ASSET CONFIGURATION & 100% UPFRONT PRELOAD ENGINE
      -------------------------------------------------------------------------- */
-  const BASE_FRAMES_COUNT = 580; // All 580 foundation frames spanning Chapter 1 to 9 (~14.9 MB)
-  const TOTAL_HD_FRAMES = 1738; // Ultra-HD 60FPS continuous frames
+  const TOTAL_FRAMES = 660; // 660 Curated, Crystal-Clear Architectural Frames (Ch 1 - 9)
+  const CONCURRENCY = 18;  // High-throughput parallel worker pool
+  const frames = new Array(TOTAL_FRAMES);
 
-  const baseFrames = new Array(BASE_FRAMES_COUNT);
-  const hdFrames = new Array(TOTAL_HD_FRAMES);
-
-  let baseLoadedCount = 0;
+  let loadedCount = 0;
   let experienceStarted = false;
   let lastValidImg = null;
 
@@ -46,59 +43,72 @@ document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("home-canvas");
   const ctx = canvas.getContext("2d");
 
-  const getBaseFramePath = (i) => `assets/walkthrough_frames/frame_${String(i).padStart(4, '0')}.webp`;
-  const getHdFramePath = (i) => `assets/frames/frame_${String(i).padStart(4, '0')}.webp`;
+  const getFramePath = (i) => `assets/walkthrough_frames/frame_${String(i).padStart(4, '0')}.webp`;
 
-  // Callback whenever any base foundation frame finishes loading
-  function onBaseFrameLoaded(idx, img) {
-    baseFrames[idx] = img;
+  // Callback whenever any frame finishes loading
+  function onFrameLoaded(idx, img) {
+    frames[idx] = img;
     if (img && img.naturalWidth > 0 && !lastValidImg) {
       lastValidImg = img;
     }
-    baseLoadedCount++;
+    loadedCount++;
 
-    const pct = Math.min(100, Math.round((baseLoadedCount / BASE_FRAMES_COUNT) * 100));
+    const pct = Math.min(100, Math.floor((loadedCount / TOTAL_FRAMES) * 100));
     if (preloaderBar) preloaderBar.style.width = `${pct}%`;
     if (preloaderSubText) {
       preloaderSubText.textContent = `INITIALIZING 3D VILLA SANCTUARY... ${pct}%`;
     }
 
-    // Render frame 0 immediately once first 5 foundation frames arrive
-    if (baseLoadedCount >= 5 && !window.initialDrawn) {
+    // Immediately render frame 0 so the canvas is primed behind the preloader
+    if (idx === 0 && !window.initialDrawn) {
       window.initialDrawn = true;
       drawCanvasFrame(0);
     }
 
-    // Launch experience as soon as 92% of the full-tour foundation is in memory!
-    if (baseLoadedCount >= Math.floor(BASE_FRAMES_COUNT * 0.92) && !experienceStarted) {
+    // Launch experience ONLY when 100% of the entire tour is resident in RAM!
+    if (loadedCount >= TOTAL_FRAMES && !experienceStarted) {
       setTimeout(launchExperience, 200);
     }
   }
 
-  // Preload ALL 580 foundation frames so NO CHAPTER HAS MISSING FRAMES ON 1ST SCROLL!
-  for (let i = 0; i < BASE_FRAMES_COUNT; i++) {
-    const img = new Image();
-    img.onload = () => onBaseFrameLoaded(i, img);
-    img.onerror = () => onBaseFrameLoaded(i, null);
-    img.src = getBaseFramePath(i + 1);
-  }
+  // Parallel queue loader: streams all 660 frames rapidly without choking browser network
+  let nextQueueIdx = 0;
+  function loadNext() {
+    if (nextQueueIdx >= TOTAL_FRAMES) return;
+    const idx = nextQueueIdx++;
 
-  // Also kickstart the first 60 HD frames of Chapter 1 Arrival
-  for (let i = 0; i < 60; i++) {
     const img = new Image();
-    img.onload = () => {
-      hdFrames[i] = img;
-      if (!lastValidImg) lastValidImg = img;
+    const handleSuccess = () => {
+      onFrameLoaded(idx, img);
+      loadNext();
     };
-    img.src = getHdFramePath(i + 1);
+    const handleFail = () => {
+      onFrameLoaded(idx, null);
+      loadNext();
+    };
+
+    img.onload = handleSuccess;
+    img.onerror = handleFail;
+    img.src = getFramePath(idx + 1);
   }
 
-  // Safety fallback: launch experience after 5.0s maximum so user never waits indefinitely
+  // Spawn parallel loading workers
+  for (let c = 0; c < CONCURRENCY; c++) {
+    loadNext();
+  }
+
+  // Defensive safety fallbacks: ensure user is never trapped under unexpected packet drop
+  setTimeout(() => {
+    if (!experienceStarted && loadedCount >= Math.floor(TOTAL_FRAMES * 0.96)) {
+      launchExperience();
+    }
+  }, 7500);
+
   setTimeout(() => {
     if (!experienceStarted) {
       launchExperience();
     }
-  }, 5000);
+  }, 12000);
 
   /* --------------------------------------------------------------------------
      2. LAUNCH EXPERIENCE & DISMISS PRELOADER
@@ -126,10 +136,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 650);
     }
 
-    // Initialize smooth scroll & HD background streamer
+    // Initialize smooth scroll experience
     setTimeout(() => {
       initScrollExperience();
-      startBackgroundHdStreaming();
     }, 80);
   }
 
@@ -160,20 +169,20 @@ document.addEventListener("DOMContentLoaded", () => {
   resizeCanvas();
 
   function drawCanvasFrame(index) {
-    if (index < 0 || index >= TOTAL_HD_FRAMES) return;
+    if (index < 0 || index >= TOTAL_FRAMES) return;
 
-    // Tier 1: Exact HD frame
-    let img = hdFrames[index];
+    // Direct frame lookup from 100% in-memory cache
+    let img = frames[index];
 
-    // Tier 2: Nearest adjacent HD frame within ±4 frames
+    // Defensive nearest-neighbor lookup if single frame had network hitch
     if (!img || !img.complete || img.naturalWidth === 0) {
-      for (let d = 1; d <= 4; d++) {
-        const p = hdFrames[index - d];
+      for (let d = 1; d <= 6; d++) {
+        const p = frames[index - d];
         if (p && p.complete && p.naturalWidth > 0) {
           img = p;
           break;
         }
-        const n = hdFrames[index + d];
+        const n = frames[index + d];
         if (n && n.complete && n.naturalWidth > 0) {
           img = n;
           break;
@@ -181,32 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Tier 3: Preloaded Base Foundation Frame (100% Guaranteed Ready from 1st Scroll!)
-    if (!img || !img.complete || img.naturalWidth === 0) {
-      const baseIdx = Math.min(BASE_FRAMES_COUNT - 1, Math.round((index / (TOTAL_HD_FRAMES - 1)) * (BASE_FRAMES_COUNT - 1)));
-      let baseImg = baseFrames[baseIdx];
-
-      if (!baseImg || !baseImg.complete || baseImg.naturalWidth === 0) {
-        for (let bd = 1; bd <= 8; bd++) {
-          const bp = baseFrames[baseIdx - bd];
-          if (bp && bp.complete && bp.naturalWidth > 0) {
-            baseImg = bp;
-            break;
-          }
-          const bn = baseFrames[baseIdx + bd];
-          if (bn && bn.complete && bn.naturalWidth > 0) {
-            baseImg = bn;
-            break;
-          }
-        }
-      }
-
-      if (baseImg && baseImg.complete && baseImg.naturalWidth > 0) {
-        img = baseImg;
-      }
-    }
-
-    // Tier 4: Fallback to last valid image
+    // Fallback to last valid image
     if (!img || !img.complete || img.naturalWidth === 0) {
       img = lastValidImg;
     }
@@ -219,7 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.clearRect(0, 0, w, h);
 
     const screenAspect = w / h;
-    const imgAspect = 1920 / 1080;
+    const imgAspect = 16 / 9; // 1280x720 aspect ratio
 
     let drawW, drawH, drawX, drawY;
 
@@ -237,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 100% Crisp single-frame drawing: ZERO blur, ZERO ghosting, pristine architectural sharpness!
     ctx.globalAlpha = 1.0;
-    ctx.drawImage(img, drawX, drawY, drawW, drawH);
+    ctx.drawImage(img, Math.round(drawX), Math.round(drawY), Math.round(drawW), Math.round(drawH));
   }
 
   // Dedicated RAF animation loop (Direct 1:1 hardware sync with Lenis: ZERO end-lag judder!)
@@ -253,128 +237,67 @@ document.addEventListener("DOMContentLoaded", () => {
   requestAnimationFrame(rafRenderLoop);
 
   /* --------------------------------------------------------------------------
-     4. SMART DIRECTIONAL HD BACKGROUND STREAMER (PRIORITY QUEUE)
-     -------------------------------------------------------------------------- */
-  function startBackgroundHdStreaming() {
-    const CONCURRENCY_LIMIT = 24; // High parallel HTTP/2 multiplexed streams
-    let activeDownloads = 0;
-    let sequentialPointer = 0;
-
-    function fetchNext() {
-      if (activeDownloads >= CONCURRENCY_LIMIT) return;
-
-      let nextIndex = -1;
-      const currentPos = targetFrameIdx;
-
-      // Priority 1: Check 120 frames ahead of the user's current scroll direction
-      for (let offset = 0; offset <= 120; offset++) {
-        const candidate = currentPos + offset;
-        if (candidate < TOTAL_HD_FRAMES && !hdFrames[candidate]) {
-          nextIndex = candidate;
-          break;
-        }
-      }
-
-      // Priority 2: Check 40 frames behind
-      if (nextIndex === -1) {
-        for (let offset = 1; offset <= 40; offset++) {
-          const candidate = currentPos - offset;
-          if (candidate >= 0 && !hdFrames[candidate]) {
-            nextIndex = candidate;
-            break;
-          }
-        }
-      }
-
-      // Priority 3: Sequential load the rest of the tour
-      if (nextIndex === -1) {
-        while (sequentialPointer < TOTAL_HD_FRAMES && hdFrames[sequentialPointer]) {
-          sequentialPointer++;
-        }
-        if (sequentialPointer < TOTAL_HD_FRAMES) {
-          nextIndex = sequentialPointer;
-          sequentialPointer++;
-        }
-      }
-
-      if (nextIndex === -1) return; // All 1,738 HD frames loaded!
-
-      activeDownloads++;
-      const img = new Image();
-      hdFrames[nextIndex] = img; // Mark as requested to prevent duplicate requests
-
-      const onComplete = () => {
-        activeDownloads--;
-        fetchNext();
-      };
-
-      img.onload = onComplete;
-      img.onerror = onComplete;
-      img.src = getHdFramePath(nextIndex + 1);
-
-      // Keep pipeline full
-      if (activeDownloads < CONCURRENCY_LIMIT) {
-        fetchNext();
-      }
-    }
-
-    for (let c = 0; c < CONCURRENCY_LIMIT; c++) {
-      fetchNext();
-    }
-  }
-
-  /* --------------------------------------------------------------------------
-     5. PROGRESS CURVE MAPPING (CH 7 = 180 FRAMES, CH 9 = 200 FRAMES)
+     4. PROGRESS CURVE MAPPING (CH 7 = 160 FRAMES, CH 9 = 115 FRAMES)
      -------------------------------------------------------------------------- */
   function getFrameIndexFromProgress(p) {
     const clampedP = Math.min(1, Math.max(0, p));
     let frameIdx;
 
-    if (clampedP < 0.14) {
-      // Chapter 1 (Exterior Sanctuary Arrival): 0.00 to 0.14 -> frames 0 to 280 (280 frames)
-      frameIdx = (clampedP / 0.14) * 280;
-    } else if (clampedP < 0.30) {
-      // Chapters 2 & 3 (Grand Foyer & Living Pavilion): 0.14 to 0.30 -> frames 280 to 520 (240 frames)
-      const subP = (clampedP - 0.14) / (0.30 - 0.14);
-      frameIdx = 280 + subP * 240;
-    } else if (clampedP < 0.44) {
-      // Chapter 4 (Bouclé Lounge & Kitchen): 0.30 to 0.44 -> frames 520 to 760 (240 frames, calm pan)
-      const subP = (clampedP - 0.30) / (0.44 - 0.30);
-      frameIdx = 520 + subP * 240;
-    } else if (clampedP < 0.65) {
-      // Chapters 5 & 6 (Classical Salon & Dining / Library): 0.44 to 0.65 -> frames 760 to 1160 (400 frames)
-      const subP = (clampedP - 0.44) / (0.65 - 0.44);
-      frameIdx = 760 + subP * 400;
-    } else if (clampedP < 0.77) {
-      // Chapter 7 (The Floating Staircase): 0.65 to 0.77 -> frames 1160 to 1340 (EXACTLY 180 FRAMES!)
-      const subP = (clampedP - 0.65) / (0.77 - 0.65);
-      frameIdx = 1160 + subP * 180;
-    } else if (clampedP < 0.85) {
-      // Chapter 8 (Executive Master Suite): 0.77 to 0.85 -> frames 1340 to 1480 (140 frames)
-      const subP = (clampedP - 0.77) / (0.85 - 0.77);
-      frameIdx = 1340 + subP * 140;
-    } else if (clampedP < 0.96) {
-      // Chapter 9 (Vanity & Study Nook): 0.85 to 0.96 -> frames 1480 to 1680 (EXACTLY 200 FRAMES, ultra slow glide!)
-      const subP = (clampedP - 0.85) / (0.96 - 0.85);
-      frameIdx = 1480 + subP * 200;
+    if (clampedP < 0.130) {
+      // Chapter 1 (Exterior Sanctuary Arrival): 0.000 to 0.130 -> frames 0 to 100 (100 frames)
+      frameIdx = (clampedP / 0.130) * 100;
+    } else if (clampedP < 0.200) {
+      // Chapter 2 (The Grand Foyer): 0.130 to 0.200 -> frames 100 to 145 (45 frames)
+      const subP = (clampedP - 0.130) / (0.200 - 0.130);
+      frameIdx = 100 + subP * 45;
+    } else if (clampedP < 0.270) {
+      // Chapter 3 (Living Pavilion): 0.200 to 0.270 -> frames 145 to 185 (40 frames)
+      const subP = (clampedP - 0.200) / (0.270 - 0.200);
+      frameIdx = 145 + subP * 40;
+    } else if (clampedP < 0.400) {
+      // Chapter 4 (Bouclé Lounge & Kitchen): 0.270 to 0.400 -> frames 185 to 250 (65 frames, calm spacious pan)
+      const subP = (clampedP - 0.270) / (0.400 - 0.270);
+      frameIdx = 185 + subP * 65;
+    } else if (clampedP < 0.490) {
+      // Chapter 5 (Classical Salon): 0.400 to 0.490 -> frames 250 to 295 (45 frames)
+      const subP = (clampedP - 0.400) / (0.490 - 0.400);
+      frameIdx = 250 + subP * 45;
+    } else if (clampedP < 0.580) {
+      // Chapter 6 (Dining & Bespoke Library): 0.490 to 0.580 -> frames 295 to 335 (40 frames)
+      const subP = (clampedP - 0.490) / (0.580 - 0.490);
+      frameIdx = 295 + subP * 40;
+    } else if (clampedP < 0.760) {
+      // Chapter 7 (FLOATING MARBLE STAIRCASE): 0.580 to 0.760 -> frames 335 to 495 (EXACTLY 160 DEDICATED FRAMES!)
+      // Buttery smooth vertical ascent with illuminated marble steps and vertical fluted atrium!
+      const subP = (clampedP - 0.580) / (0.760 - 0.580);
+      frameIdx = 335 + subP * 160;
+    } else if (clampedP < 0.830) {
+      // Chapter 8 (The Executive Master Suite): 0.760 to 0.830 -> frames 495 to 530 (35 frames)
+      const subP = (clampedP - 0.760) / (0.830 - 0.760);
+      frameIdx = 495 + subP * 35;
+    } else if (clampedP < 0.955) {
+      // Chapter 9 (VANITY & PRIVATE STUDY NOOK): 0.830 to 0.955 -> frames 530 to 645 (EXACTLY 115 DEDICATED FRAMES!)
+      // Ultra slow-motion luxury glide, crystal-clear mirror reflections and joinery!
+      const subP = (clampedP - 0.830) / (0.955 - 0.830);
+      frameIdx = 530 + subP * 115;
     } else {
-      // Final overview to CTA card: 0.96 to 1.00 -> frames 1680 to 1737 (58 frames)
-      const subP = (clampedP - 0.96) / (1.00 - 0.96);
-      frameIdx = 1680 + subP * 57;
+      // Chapter 10 (Final Concierge to Digital Card): 0.955 to 1.000 -> frames 645 to 659 (14 frames)
+      const subP = (clampedP - 0.955) / (1.000 - 0.955);
+      frameIdx = 645 + subP * 14;
     }
 
-    return Math.min(TOTAL_HD_FRAMES - 1, Math.max(0, Math.round(frameIdx)));
+    return Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(frameIdx)));
   }
 
   /* --------------------------------------------------------------------------
-     6. LENIS SMOOTH SCROLL & GSAP SCROLLTRIGGER (DIRECT 1:1 HARDWARE SYNC)
+     5. LENIS SMOOTH SCROLL & GSAP SCROLLTRIGGER (DIRECT 1:1 HARDWARE SYNC)
      -------------------------------------------------------------------------- */
   let lenisInstance = null;
 
   window.scrollToContact = () => {
     const maxScroll = document.body.scrollHeight;
     if (lenisInstance) {
-      lenisInstance.scrollTo(maxScroll, { duration: 2.0 });
+      lenisInstance.scrollTo(maxScroll, { duration: 1.8 });
     } else {
       window.scrollTo({ top: maxScroll, behavior: "smooth" });
     }
@@ -391,7 +314,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         lenisInstance = new Lenis({
           duration: isMobile ? 0.75 : 0.85,
-          easing: (t) => 1 - Math.pow(1 - t, 3.5), // Clean Quart-Out (Reaches zero cleanly, ZERO dragging asymptotic tail!)
+          easing: (t) => 1 - Math.pow(1 - t, 3.5), // Clean Quart-Out (Decisive zero-lag finish, ZERO lingering crawl!)
           smoothWheel: true,
           wheelMultiplier: 1.15, // Responsive, high-framerate wheel glide
           touchMultiplier: isMobile ? 1.3 : 1.0
@@ -432,25 +355,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateActiveSection(p) {
       let targetSec = null;
-      if (p >= 0.000 && p < 0.115) {
-        targetSec = secCh1; // Terrace Sanctuary Opening Hero (Comfortable 280-frame reading window)
-      } else if (p >= 0.150 && p < 0.210) {
+      if (p >= 0.000 && p < 0.120) {
+        targetSec = secCh1; // Terrace Sanctuary Opening Hero
+      } else if (p >= 0.130 && p < 0.190) {
         targetSec = secCh2; // Grand Foyer
-      } else if (p >= 0.235 && p < 0.290) {
+      } else if (p >= 0.200 && p < 0.260) {
         targetSec = secCh3; // Living Pavilion
-      } else if (p >= 0.320 && p < 0.420) {
+      } else if (p >= 0.280 && p < 0.380) {
         targetSec = secCh4; // Bouclé Lounge (Wide, crystal-clear reading window)
-      } else if (p >= 0.465 && p < 0.530) {
+      } else if (p >= 0.410 && p < 0.470) {
         targetSec = secCh5; // Classical Salon
-      } else if (p >= 0.560 && p < 0.630) {
+      } else if (p >= 0.500 && p < 0.560) {
         targetSec = secCh6; // Dining & Library
-      } else if (p >= 0.670 && p < 0.755) {
-        targetSec = secCh7; // Floating Staircase (Calibrated for 180-frame ascent!)
-      } else if (p >= 0.785 && p < 0.835) {
+      } else if (p >= 0.600 && p < 0.740) {
+        targetSec = secCh7; // Floating Staircase (160-frame calibrated ascent reading window!)
+      } else if (p >= 0.770 && p < 0.820) {
         targetSec = secCh8; // Executive Suite
-      } else if (p >= 0.865 && p < 0.945) {
-        targetSec = secCh9; // Vanity & Study Nook (Majestic 200-frame slow-motion reading window)
-      } else if (p >= 0.960) {
+      } else if (p >= 0.840 && p < 0.940) {
+        targetSec = secCh9; // Vanity & Study Nook (115-frame slow-motion luxury reading window!)
+      } else if (p >= 0.955) {
         targetSec = secCta; // Zenora Concierge & Digital Card
       }
 
