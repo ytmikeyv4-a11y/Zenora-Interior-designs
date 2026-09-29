@@ -1,12 +1,11 @@
 /* ==========================================================================
-   ZENORA DESIGNS // LUXURY ARCHITECTURAL 3D WALKTHROUGH ENGINE (1,738 FRAMES)
-   Direct 1:1 Hardware-Synced Lenis Physics Engine:
-   - Elimination of Triple-Smoother: ZERO End-Lag / Instant Clean Deceleration
-   - Tier 1: 240 Preloaded Foundation Frames (Zero-Gap Instant 1st-Scroll)
-   - Tier 2: 1,738 Ultra-HD 60FPS Continuous Frame Streamer (120-frame lookahead)
-   - Wide Pacing Curve for Chapter 4 (Bouclé Lounge & Kitchen: Zero Blur & Calm Entry)
+   ZENORA DESIGNS // LUXURY ARCHITECTURAL 3D WALKTHROUGH ENGINE (580 FRAMES)
+   High-Performance 100% Preloaded Cinema Architecture:
+   - 100% Upfront Preloaded Memory Store: ZERO Missing Frames on 1st Scroll
+   - Direct 1:1 Hardware-Synced Lenis Physics Engine (Decisive Zero-Judder Finish)
+   - Calibrated Calm Easing Curve for Chapter 4 (Bouclé Lounge & Kitchen: Zero Blur)
    - Expanded Deceleration Curve for Chapter 9 (Majestic Vanity & Study Nook Glide)
-   - Lenis Smooth Scroll & GSAP ScrollTrigger Direct 1:1 Sync
+   - GPU-Decoded WebP Bitmaps (img.decode()) for Zero-Lag 60FPS Rasterization
    ========================================================================== */
 
 // 1. Prevent browser restoring previous scroll position upon refresh
@@ -26,16 +25,13 @@ if (document.body) document.body.classList.add("scroll-locked");
 
 document.addEventListener("DOMContentLoaded", () => {
   /* --------------------------------------------------------------------------
-     1. ASSET CONFIGURATION & DUAL-TIER ENGINE
+     1. ASSET CONFIGURATION & FAST 100% PRELOAD ENGINE
      -------------------------------------------------------------------------- */
-  const BASE_FRAMES_COUNT = 240;
-  const TOTAL_HD_FRAMES = 1738;
-  const INITIAL_BASE_THRESHOLD = 75; // Fast launch: wait for ~2MB of foundation frames
+  const TOTAL_FRAMES = 580;
+  const CONCURRENCY = 24; // High-throughput parallel HTTP/2 download pool
+  const frames = new Array(TOTAL_FRAMES);
 
-  const baseFrames = new Array(BASE_FRAMES_COUNT);
-  const hdFrames = new Array(TOTAL_HD_FRAMES);
-
-  let baseLoadedCount = 0;
+  let loadedCount = 0;
   let experienceStarted = false;
   let lastValidImg = null;
 
@@ -45,48 +41,77 @@ document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("home-canvas");
   const ctx = canvas.getContext("2d");
 
-  const getBaseFramePath = (i) => `assets/tour_frames/frame_${String(i).padStart(4, '0')}.webp`;
-  const getHdFramePath = (i) => `assets/frames/frame_${String(i).padStart(4, '0')}.webp`;
+  const getFramePath = (i) => `assets/walkthrough_frames/frame_${String(i).padStart(4, '0')}.webp`;
 
-  // Preload base tour frames for instant 1st-scroll availability across the whole tour
-  function onBaseFrameLoaded(idx, img) {
-    baseFrames[idx] = img;
+  // Callback whenever any frame finishes loading & GPU decoding
+  function onFrameLoaded(idx, img) {
+    frames[idx] = img;
     if (img && img.naturalWidth > 0 && !lastValidImg) {
       lastValidImg = img;
     }
-    baseLoadedCount++;
+    loadedCount++;
 
-    const pct = Math.min(100, Math.round((baseLoadedCount / INITIAL_BASE_THRESHOLD) * 100));
+    const pct = Math.min(100, Math.round((loadedCount / TOTAL_FRAMES) * 100));
     if (preloaderBar) preloaderBar.style.width = `${pct}%`;
     if (preloaderSubText) {
       preloaderSubText.textContent = `INITIALIZING 3D VILLA SANCTUARY... ${pct}%`;
     }
 
-    // Render frame 0 immediately once first 5 foundation frames arrive
-    if (baseLoadedCount >= 5 && !window.initialDrawn) {
+    // Immediately render frame 0 so the canvas is primed behind the preloader
+    if (idx === 0 && !window.initialDrawn) {
       window.initialDrawn = true;
       drawCanvasFrame(0);
     }
 
-    if (baseLoadedCount >= INITIAL_BASE_THRESHOLD && !experienceStarted) {
-      launchExperience();
+    // When 100% of the frames are loaded into RAM, launch with crisp 250ms completion pause
+    if (loadedCount >= TOTAL_FRAMES && !experienceStarted) {
+      setTimeout(launchExperience, 250);
     }
   }
 
-  // Initiate all 240 base foundation frames (~6.88 MB total)
-  for (let i = 0; i < BASE_FRAMES_COUNT; i++) {
+  // High-performance parallel queue loader
+  let nextQueueIdx = 0;
+  function loadNext() {
+    if (nextQueueIdx >= TOTAL_FRAMES) return;
+    const idx = nextQueueIdx++;
+
     const img = new Image();
-    img.onload = () => onBaseFrameLoaded(i, img);
-    img.onerror = () => onBaseFrameLoaded(i, null);
-    img.src = getBaseFramePath(i + 1);
+    const handleSuccess = () => {
+      if ('decode' in img) {
+        img.decode().then(() => onFrameLoaded(idx, img)).catch(() => onFrameLoaded(idx, img));
+      } else {
+        onFrameLoaded(idx, img);
+      }
+      loadNext();
+    };
+
+    const handleFail = () => {
+      onFrameLoaded(idx, null);
+      loadNext();
+    };
+
+    img.onload = handleSuccess;
+    img.onerror = handleFail;
+    img.src = getFramePath(idx + 1);
   }
 
-  // Safety fallback: launch experience after 2.8s maximum so user never waits
+  // Spawn parallel loading workers
+  for (let c = 0; c < CONCURRENCY; c++) {
+    loadNext();
+  }
+
+  // Safety fallbacks: Ensure user is never trapped in case of rare network packet loss
+  setTimeout(() => {
+    if (!experienceStarted && loadedCount >= Math.floor(TOTAL_FRAMES * 0.90)) {
+      launchExperience();
+    }
+  }, 4500);
+
   setTimeout(() => {
     if (!experienceStarted) {
       launchExperience();
     }
-  }, 2800);
+  }, 7500);
 
   /* --------------------------------------------------------------------------
      2. LAUNCH EXPERIENCE & DISMISS PRELOADER
@@ -104,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.style.overflow = "";
     window.scrollTo(0, 0);
 
-    // Forceful, guaranteed preloader dismissal
+    // Smooth, guaranteed preloader dismissal
     if (preloader) {
       preloader.classList.add("loaded");
       preloader.style.opacity = "0";
@@ -114,15 +139,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 650);
     }
 
-    // Initialize smooth scroll & HD background streamer
+    // Initialize smooth scroll & story triggers
     setTimeout(() => {
       initScrollExperience();
-      startBackgroundHdStreaming();
-    }, 100);
+    }, 80);
   }
 
   /* --------------------------------------------------------------------------
-     3. HIGH-PERFORMANCE DIRECT GPU CANVAS ENGINE (ZERO END-LAG FINISHING)
+     3. HIGH-PERFORMANCE DIRECT GPU CANVAS ENGINE (ZERO STUTTER / ZERO LAG)
      -------------------------------------------------------------------------- */
   let currentRenderedIdx = -1;
   let targetFrameIdx = 0;
@@ -148,20 +172,20 @@ document.addEventListener("DOMContentLoaded", () => {
   resizeCanvas();
 
   function drawCanvasFrame(index) {
-    if (index < 0 || index >= TOTAL_HD_FRAMES) return;
+    if (index < 0 || index >= TOTAL_FRAMES) return;
 
-    // Tier 1: Exact HD frame
-    let img = hdFrames[index];
+    // 1. Direct exact frame from 100% preloaded memory store
+    let img = frames[index];
 
-    // Tier 2: Nearest adjacent HD frame within ±6 frames
+    // 2. Defensive nearest-neighbor lookup if single frame had network hitch
     if (!img || !img.complete || img.naturalWidth === 0) {
-      for (let d = 1; d <= 6; d++) {
-        const p = hdFrames[index - d];
+      for (let d = 1; d <= 8; d++) {
+        const p = frames[index - d];
         if (p && p.complete && p.naturalWidth > 0) {
           img = p;
           break;
         }
-        const n = hdFrames[index + d];
+        const n = frames[index + d];
         if (n && n.complete && n.naturalWidth > 0) {
           img = n;
           break;
@@ -169,32 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Tier 3: Preloaded Base Tour Frame (guarantees zero gaps on 1st scroll!)
-    if (!img || !img.complete || img.naturalWidth === 0) {
-      const baseIdx = Math.min(BASE_FRAMES_COUNT - 1, Math.round((index / (TOTAL_HD_FRAMES - 1)) * (BASE_FRAMES_COUNT - 1)));
-      let baseImg = baseFrames[baseIdx];
-
-      if (!baseImg || !baseImg.complete || baseImg.naturalWidth === 0) {
-        for (let bd = 1; bd <= 12; bd++) {
-          const bp = baseFrames[baseIdx - bd];
-          if (bp && bp.complete && bp.naturalWidth > 0) {
-            baseImg = bp;
-            break;
-          }
-          const bn = baseFrames[baseIdx + bd];
-          if (bn && bn.complete && bn.naturalWidth > 0) {
-            baseImg = bn;
-            break;
-          }
-        }
-      }
-
-      if (baseImg && baseImg.complete && baseImg.naturalWidth > 0) {
-        img = baseImg;
-      }
-    }
-
-    // Tier 4: Fallback to last valid image
+    // 3. Fallback to last valid image
     if (!img || !img.complete || img.naturalWidth === 0) {
       img = lastValidImg;
     }
@@ -207,7 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.clearRect(0, 0, w, h);
 
     const screenAspect = w / h;
-    const imgAspect = 1920 / 1080;
+    const imgAspect = 16 / 9; // 1280x720 aspect ratio
 
     let drawW, drawH, drawX, drawY;
 
@@ -239,116 +238,47 @@ document.addEventListener("DOMContentLoaded", () => {
   requestAnimationFrame(rafRenderLoop);
 
   /* --------------------------------------------------------------------------
-     4. SMART DIRECTIONAL HD BACKGROUND STREAMER (PRIORITY QUEUE)
-     -------------------------------------------------------------------------- */
-  function startBackgroundHdStreaming() {
-    const CONCURRENCY_LIMIT = 24; // High parallel HTTP/2 multiplexed streams
-    let activeDownloads = 0;
-    let sequentialPointer = 0;
-
-    function fetchNext() {
-      if (activeDownloads >= CONCURRENCY_LIMIT) return;
-
-      let nextIndex = -1;
-      const currentPos = targetFrameIdx;
-
-      // Priority 1: Check 120 frames ahead of the user's current scroll direction
-      for (let offset = 0; offset <= 120; offset++) {
-        const candidate = currentPos + offset;
-        if (candidate < TOTAL_HD_FRAMES && !hdFrames[candidate]) {
-          nextIndex = candidate;
-          break;
-        }
-      }
-
-      // Priority 2: Check 40 frames behind
-      if (nextIndex === -1) {
-        for (let offset = 1; offset <= 40; offset++) {
-          const candidate = currentPos - offset;
-          if (candidate >= 0 && !hdFrames[candidate]) {
-            nextIndex = candidate;
-            break;
-          }
-        }
-      }
-
-      // Priority 3: Sequential load the rest of the tour
-      if (nextIndex === -1) {
-        while (sequentialPointer < TOTAL_HD_FRAMES && hdFrames[sequentialPointer]) {
-          sequentialPointer++;
-        }
-        if (sequentialPointer < TOTAL_HD_FRAMES) {
-          nextIndex = sequentialPointer;
-          sequentialPointer++;
-        }
-      }
-
-      if (nextIndex === -1) return; // All 1,738 HD frames loaded!
-
-      activeDownloads++;
-      const img = new Image();
-      hdFrames[nextIndex] = img; // Mark as requested to prevent duplicate requests
-
-      const onComplete = () => {
-        activeDownloads--;
-        fetchNext();
-      };
-
-      img.onload = onComplete;
-      img.onerror = onComplete;
-      img.src = getHdFramePath(nextIndex + 1);
-
-      // Keep pipeline full
-      if (activeDownloads < CONCURRENCY_LIMIT) {
-        fetchNext();
-      }
-    }
-
-    for (let c = 0; c < CONCURRENCY_LIMIT; c++) {
-      fetchNext();
-    }
-  }
-
-  /* --------------------------------------------------------------------------
-     5. PROGRESS CURVE MAPPING (CHAPTER 4 CALM ENTRY & CHAPTER 9 PACING)
+     4. PROGRESS CURVE MAPPING (CHAPTER 4 CALM ENTRY & CHAPTER 9 PACING)
      -------------------------------------------------------------------------- */
   function getFrameIndexFromProgress(p) {
     const clampedP = Math.min(1, Math.max(0, p));
     let frameIdx;
 
     if (clampedP < 0.30) {
-      // Chapters 1 - 3: 0.00 to 0.30 maps to frames 0 to 520
-      frameIdx = (clampedP / 0.30) * 520;
+      // Chapters 1 - 3 (Arrival, Grand Foyer, Living Pavilion): 0.00 to 0.30 -> frames 0 to 173
+      frameIdx = (clampedP / 0.30) * 173;
     } else if (clampedP < 0.46) {
-      // Chapter 4 (Bouclé Lounge & Kitchen): 0.30 to 0.46 (16% scroll track) maps to 520..760 (calm, spacious pan)
+      // Chapter 4 (Bouclé Lounge & Kitchen): 0.30 to 0.46 (16% scroll track) -> frames 173 to 253
+      // Calibrated wide pacing curve: calm, spacious, cinematic glide (ZERO blur, ZERO rushing)
       const subP = (clampedP - 0.30) / (0.46 - 0.30);
-      frameIdx = 520 + subP * 240;
+      frameIdx = 173 + subP * 80;
     } else if (clampedP < 0.85) {
-      // Chapters 5 - 8: 0.46 to 0.85 maps to frames 760 to 1500
+      // Chapters 5 - 8 (Salon, Dining, Staircase, Suite): 0.46 to 0.85 -> frames 253 to 500
       const subP = (clampedP - 0.46) / (0.85 - 0.46);
-      frameIdx = 760 + subP * 740;
+      frameIdx = 253 + subP * 247;
     } else if (clampedP < 0.96) {
-      // Chapter 9 (Vanity & Study Nook): 0.85 to 0.96 (11% scroll track) maps to 1500..1660 (luxurious slow glide!)
+      // Chapter 9 (Vanity & Study Nook): 0.85 to 0.96 (11% scroll track) -> frames 500 to 553
+      // Expanded deceleration window: ultra-luxurious slow motion reading glide
       const subP = (clampedP - 0.85) / (0.96 - 0.85);
-      frameIdx = 1500 + subP * 160;
+      frameIdx = 500 + subP * 53;
     } else {
-      // Final overview to CTA card: 0.96 to 1.00 maps to 1660..1737
+      // Final overview to CTA card: 0.96 to 1.00 -> frames 553 to 579
       const subP = (clampedP - 0.96) / (1.00 - 0.96);
-      frameIdx = 1660 + subP * 77;
+      frameIdx = 553 + subP * 26;
     }
 
-    return Math.min(TOTAL_HD_FRAMES - 1, Math.max(0, Math.round(frameIdx)));
+    return Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(frameIdx)));
   }
 
   /* --------------------------------------------------------------------------
-     6. LENIS SMOOTH SCROLL & GSAP SCROLLTRIGGER (MAKHAN PROPER FINISHING)
+     5. LENIS SMOOTH SCROLL & GSAP SCROLLTRIGGER (DECISIVE CLEAN FINISHING)
      -------------------------------------------------------------------------- */
   let lenisInstance = null;
 
   window.scrollToContact = () => {
     const maxScroll = document.body.scrollHeight;
     if (lenisInstance) {
-      lenisInstance.scrollTo(maxScroll, { duration: 2.0 });
+      lenisInstance.scrollTo(maxScroll, { duration: 1.8 });
     } else {
       window.scrollTo({ top: maxScroll, behavior: "smooth" });
     }
@@ -364,10 +294,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof Lenis !== 'undefined') {
       try {
         lenisInstance = new Lenis({
-          duration: isMobile ? 0.75 : 0.85,
-          easing: (t) => 1 - Math.pow(1 - t, 3.5), // Clean Quart-Out (Reaches zero cleanly, ZERO dragging asymptotic tail!)
+          duration: isMobile ? 0.70 : 0.80,
+          easing: (t) => 1 - Math.pow(1 - t, 3.5), // Clean Quart-Out (Reaches zero decisively, ZERO dragging lingering crawl!)
           smoothWheel: true,
-          wheelMultiplier: 1.15, // Responsive, high-framerate wheel glide
+          wheelMultiplier: 1.15, // Immediate, responsive glide
           touchMultiplier: isMobile ? 1.3 : 1.0
         });
 
