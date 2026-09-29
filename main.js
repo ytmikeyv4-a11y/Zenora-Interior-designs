@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let lastValidImg = null;
 
   const preloader = document.getElementById("preloader");
-  const glassPlinth = document.getElementById("glassPlinth");
+  const cardPlinth = document.getElementById("cardPlinth");
   const preloaderBar = document.getElementById("preloaderBar");
   const preloaderPercent = document.getElementById("preloaderPercent");
   const preloaderSubText = document.getElementById("preloaderSubText");
@@ -46,28 +46,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("home-canvas");
   const ctx = canvas.getContext("2d");
 
-  // Interactive 3D Apple Glass tilt physics
-  if (preloader && glassPlinth) {
+  // Interactive 3D Luxury Card tilt physics
+  if (preloader && cardPlinth) {
     let tiltTimeout;
     preloader.addEventListener("mousemove", (e) => {
       const rect = preloader.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
       const y = (e.clientY - rect.top) / rect.height - 0.5;
-      glassPlinth.style.animationPlayState = "paused";
-      glassPlinth.style.transform = `rotateY(${x * 32}deg) rotateX(${-y * 32}deg) translateY(-6px) translateZ(26px)`;
+      cardPlinth.style.animationPlayState = "paused";
+      cardPlinth.style.transform = `rotateY(${x * 24}deg) rotateX(${-y * 24}deg) translateY(-6px) translateZ(20px)`;
       clearTimeout(tiltTimeout);
       tiltTimeout = setTimeout(() => {
-        if (!experienceStarted && glassPlinth) {
-          glassPlinth.style.animationPlayState = "running";
-          glassPlinth.style.transform = "";
+        if (!experienceStarted && cardPlinth) {
+          cardPlinth.style.animationPlayState = "running";
+          cardPlinth.style.transform = "";
         }
       }, 1200);
     }, { passive: true });
 
     preloader.addEventListener("mouseleave", () => {
-      if (!experienceStarted && glassPlinth) {
-        glassPlinth.style.animationPlayState = "running";
-        glassPlinth.style.transform = "";
+      if (!experienceStarted && cardPlinth) {
+        cardPlinth.style.animationPlayState = "running";
+        cardPlinth.style.transform = "";
       }
     }, { passive: true });
   }
