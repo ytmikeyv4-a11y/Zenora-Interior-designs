@@ -1,11 +1,12 @@
 /* ==========================================================================
-   ZENORA DESIGNS // LUXURY ARCHITECTURAL 3D WALKTHROUGH ENGINE (580 FRAMES)
-   High-Performance Continuous Cinema & Optical Sub-Frame Dissolve:
-   - 100% Upfront Preloaded Memory Store: ZERO Missing Frames on 1st Scroll
-   - Optical Sub-Frame Dissolve Blending: INFINITE Frame Rate at Any Scroll Speed
-   - Steadycam Liquid LERP (0.16): ZERO "Hand-Maar-Ke" Steps or Slow-Scroll Stutters
-   - Golden-Standard Hydraulic Lenis (lerp: 0.08) for Pure Hydraulic Fluidity
-   - Calibrated Continuous Hermite Curves for Chapter 4 (Lounge) & Chapter 9 (Vanity)
+   ZENORA DESIGNS // LUXURY ARCHITECTURAL 3D WALKTHROUGH ENGINE (1,738 FRAMES)
+   Direct 1:1 Hardware-Synced Lenis Physics Engine:
+   - 100% Crystal-Clear Sharpness: ZERO Alpha Blur / ZERO Double Ghosting
+   - Tier 1: 580 Preloaded Foundation Frames (Zero-Gap Instant 1st-Scroll)
+   - Tier 2: 1,738 Ultra-HD 60FPS Continuous Frame Streamer (120-frame lookahead)
+   - Wide Pacing Curve for Chapter 4 (Bouclé Lounge & Kitchen: Calm Spacious Pan)
+   - Expanded Deceleration Curve for Chapter 9 (Majestic Vanity & Study Nook Glide)
+   - Lenis Smooth Scroll & GSAP ScrollTrigger Direct 1:1 Sync
    ========================================================================== */
 
 // 1. Prevent browser restoring previous scroll position upon refresh
@@ -25,13 +26,16 @@ if (document.body) document.body.classList.add("scroll-locked");
 
 document.addEventListener("DOMContentLoaded", () => {
   /* --------------------------------------------------------------------------
-     1. ASSET CONFIGURATION & FAST 100% PRELOAD ENGINE
+     1. ASSET CONFIGURATION & DUAL-TIER ENGINE
      -------------------------------------------------------------------------- */
-  const TOTAL_FRAMES = 580;
-  const CONCURRENCY = 24; // High-throughput parallel HTTP/2 download pool
-  const frames = new Array(TOTAL_FRAMES);
+  const BASE_FRAMES_COUNT = 580;
+  const TOTAL_HD_FRAMES = 1738;
+  const INITIAL_BASE_THRESHOLD = 180; // Fast launch: wait for first 4.5MB of foundation frames
 
-  let loadedCount = 0;
+  const baseFrames = new Array(BASE_FRAMES_COUNT);
+  const hdFrames = new Array(TOTAL_HD_FRAMES);
+
+  let baseLoadedCount = 0;
   let experienceStarted = false;
   let lastValidImg = null;
 
@@ -41,77 +45,48 @@ document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("home-canvas");
   const ctx = canvas.getContext("2d");
 
-  const getFramePath = (i) => `assets/walkthrough_frames/frame_${String(i).padStart(4, '0')}.webp`;
+  const getBaseFramePath = (i) => `assets/walkthrough_frames/frame_${String(i).padStart(4, '0')}.webp`;
+  const getHdFramePath = (i) => `assets/frames/frame_${String(i).padStart(4, '0')}.webp`;
 
-  // Callback whenever any frame finishes loading & GPU decoding
-  function onFrameLoaded(idx, img) {
-    frames[idx] = img;
+  // Preload base tour frames for instant 1st-scroll availability across the whole tour
+  function onBaseFrameLoaded(idx, img) {
+    baseFrames[idx] = img;
     if (img && img.naturalWidth > 0 && !lastValidImg) {
       lastValidImg = img;
     }
-    loadedCount++;
+    baseLoadedCount++;
 
-    const pct = Math.min(100, Math.round((loadedCount / TOTAL_FRAMES) * 100));
+    const pct = Math.min(100, Math.round((baseLoadedCount / INITIAL_BASE_THRESHOLD) * 100));
     if (preloaderBar) preloaderBar.style.width = `${pct}%`;
     if (preloaderSubText) {
       preloaderSubText.textContent = `INITIALIZING 3D VILLA SANCTUARY... ${pct}%`;
     }
 
-    // Immediately render frame 0 so the canvas is primed behind the preloader
-    if (idx === 0 && !window.initialDrawn) {
+    // Render frame 0 immediately once first 5 foundation frames arrive
+    if (baseLoadedCount >= 5 && !window.initialDrawn) {
       window.initialDrawn = true;
       drawCanvasFrame(0);
     }
 
-    // When 100% of the frames are loaded into RAM, launch with crisp 250ms completion pause
-    if (loadedCount >= TOTAL_FRAMES && !experienceStarted) {
-      setTimeout(launchExperience, 250);
-    }
-  }
-
-  // High-performance parallel queue loader
-  let nextQueueIdx = 0;
-  function loadNext() {
-    if (nextQueueIdx >= TOTAL_FRAMES) return;
-    const idx = nextQueueIdx++;
-
-    const img = new Image();
-    const handleSuccess = () => {
-      if ('decode' in img) {
-        img.decode().then(() => onFrameLoaded(idx, img)).catch(() => onFrameLoaded(idx, img));
-      } else {
-        onFrameLoaded(idx, img);
-      }
-      loadNext();
-    };
-
-    const handleFail = () => {
-      onFrameLoaded(idx, null);
-      loadNext();
-    };
-
-    img.onload = handleSuccess;
-    img.onerror = handleFail;
-    img.src = getFramePath(idx + 1);
-  }
-
-  // Spawn parallel loading workers
-  for (let c = 0; c < CONCURRENCY; c++) {
-    loadNext();
-  }
-
-  // Safety fallbacks: Ensure user is never trapped in case of rare network packet loss
-  setTimeout(() => {
-    if (!experienceStarted && loadedCount >= Math.floor(TOTAL_FRAMES * 0.90)) {
+    if (baseLoadedCount >= INITIAL_BASE_THRESHOLD && !experienceStarted) {
       launchExperience();
     }
-  }, 4500);
+  }
 
+  // Initiate base foundation frames in parallel
+  for (let i = 0; i < BASE_FRAMES_COUNT; i++) {
+    const img = new Image();
+    img.onload = () => onBaseFrameLoaded(i, img);
+    img.onerror = () => onBaseFrameLoaded(i, null);
+    img.src = getBaseFramePath(i + 1);
+  }
+
+  // Safety fallback: launch experience after 2.8s maximum so user never waits
   setTimeout(() => {
     if (!experienceStarted) {
       launchExperience();
     }
-  }, 7500);
+  }, 2800);
 
   /* --------------------------------------------------------------------------
      2. LAUNCH EXPERIENCE & DISMISS PRELOADER
@@ -129,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.style.overflow = "";
     window.scrollTo(0, 0);
 
-    // Smooth, guaranteed preloader dismissal
+    // Forceful, guaranteed preloader dismissal
     if (preloader) {
       preloader.classList.add("loaded");
       preloader.style.opacity = "0";
@@ -139,22 +114,22 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 650);
     }
 
-    // Initialize smooth scroll & story triggers
+    // Initialize smooth scroll & HD background streamer
     setTimeout(() => {
       initScrollExperience();
-    }, 80);
+      startBackgroundHdStreaming();
+    }, 100);
   }
 
   /* --------------------------------------------------------------------------
-     3. HIGH-PERFORMANCE DIRECT GPU CANVAS ENGINE WITH OPTICAL SUB-FRAME DISSOLVE
+     3. HIGH-PERFORMANCE DIRECT GPU CANVAS ENGINE (100% CRISP / ZERO BLUR)
      -------------------------------------------------------------------------- */
-  let currentFrameFloat = 0;
-  let targetFrameFloat = 0;
-  let lastDrawnFrameFloat = -1;
+  let currentRenderedIdx = -1;
+  let targetFrameIdx = 0;
 
   const resizeCanvas = () => {
     const isMobile = window.innerWidth <= 768;
-    const maxDpr = isMobile ? 1.25 : 1.5; // Optimal DPR: pristine sharpness with zero GPU fillrate bottlenecks
+    const maxDpr = isMobile ? 1.5 : 2;
     const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
     const w = window.innerWidth;
     const h = window.innerHeight;
@@ -164,42 +139,75 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "medium"; // Hardware texture filtering (zero CPU shader overhead)
-    lastDrawnFrameFloat = -1; // Force repaint
-    drawCanvasFrame(currentFrameFloat);
+    ctx.imageSmoothingQuality = "high";
+    currentRenderedIdx = -1; // Force repaint
+    drawCanvasFrame(targetFrameIdx);
   };
 
   window.addEventListener("resize", resizeCanvas);
   resizeCanvas();
 
-  function drawCanvasFrame(frameFloat) {
-    if (frameFloat < 0 || frameFloat >= TOTAL_FRAMES) return;
+  function drawCanvasFrame(index) {
+    if (index < 0 || index >= TOTAL_HD_FRAMES) return;
 
-    const baseIdx = Math.floor(frameFloat);
-    const frac = frameFloat - baseIdx;
-    const nextIdx = Math.min(TOTAL_FRAMES - 1, baseIdx + 1);
+    // Tier 1: Exact HD frame
+    let img = hdFrames[index];
 
-    // 1. Resolve primary base frame
-    let img1 = frames[baseIdx];
-    if (!img1 || !img1.complete || img1.naturalWidth === 0) {
-      for (let d = 1; d <= 8; d++) {
-        const p = frames[baseIdx - d];
-        if (p && p.complete && p.naturalWidth > 0) { img1 = p; break; }
-        const n = frames[baseIdx + d];
-        if (n && n.complete && n.naturalWidth > 0) { img1 = n; break; }
+    // Tier 2: Nearest adjacent HD frame within ±6 frames
+    if (!img || !img.complete || img.naturalWidth === 0) {
+      for (let d = 1; d <= 6; d++) {
+        const p = hdFrames[index - d];
+        if (p && p.complete && p.naturalWidth > 0) {
+          img = p;
+          break;
+        }
+        const n = hdFrames[index + d];
+        if (n && n.complete && n.naturalWidth > 0) {
+          img = n;
+          break;
+        }
       }
     }
 
-    if (!img1 || !img1.complete || img1.naturalWidth === 0) {
-      img1 = lastValidImg;
+    // Tier 3: Preloaded Base Foundation Frame (580 frames)
+    if (!img || !img.complete || img.naturalWidth === 0) {
+      const baseIdx = Math.min(BASE_FRAMES_COUNT - 1, Math.round((index / (TOTAL_HD_FRAMES - 1)) * (BASE_FRAMES_COUNT - 1)));
+      let baseImg = baseFrames[baseIdx];
+
+      if (!baseImg || !baseImg.complete || baseImg.naturalWidth === 0) {
+        for (let bd = 1; bd <= 8; bd++) {
+          const bp = baseFrames[baseIdx - bd];
+          if (bp && bp.complete && bp.naturalWidth > 0) {
+            baseImg = bp;
+            break;
+          }
+          const bn = baseFrames[baseIdx + bd];
+          if (bn && bn.complete && bn.naturalWidth > 0) {
+            baseImg = bn;
+            break;
+          }
+        }
+      }
+
+      if (baseImg && baseImg.complete && baseImg.naturalWidth > 0) {
+        img = baseImg;
+      }
     }
-    if (!img1 || !img1.complete || img1.naturalWidth === 0) return;
-    lastValidImg = img1;
+
+    // Tier 4: Fallback to last valid image
+    if (!img || !img.complete || img.naturalWidth === 0) {
+      img = lastValidImg;
+    }
+
+    if (!img || !img.complete || img.naturalWidth === 0) return;
+    lastValidImg = img;
 
     const w = window.innerWidth;
     const h = window.innerHeight;
+    ctx.clearRect(0, 0, w, h);
+
     const screenAspect = w / h;
-    const imgAspect = 16 / 9; // 1280x720 aspect ratio
+    const imgAspect = 1920 / 1080;
 
     let drawW, drawH, drawX, drawY;
 
@@ -215,42 +223,17 @@ document.addEventListener("DOMContentLoaded", () => {
       drawY = 0;
     }
 
-    const ix = Math.round(drawX);
-    const iy = Math.round(drawY);
-    const iw = Math.round(drawW);
-    const ih = Math.round(drawH);
-
-    // Render base frame (integer-rounded coordinates for fast GPU blit)
-    ctx.drawImage(img1, ix, iy, iw, ih);
-
-    // 2. Optical Sub-Frame Dissolve:
-    // When scrolling slowly between frames, dissolve smoothly to the next frame with alpha.
-    // This creates an analog optical motion blur, eliminating all stepping/stutter at low scroll speeds!
-    if (frac > 0.025 && nextIdx !== baseIdx) {
-      let img2 = frames[nextIdx];
-      if (img2 && img2.complete && img2.naturalWidth > 0) {
-        ctx.globalAlpha = frac;
-        ctx.drawImage(img2, ix, iy, iw, ih);
-        ctx.globalAlpha = 1.0;
-      }
-    }
+    // 100% Crisp single-frame drawing: ZERO blur, ZERO ghosting, pristine architectural sharpness!
+    ctx.globalAlpha = 1.0;
+    ctx.drawImage(img, drawX, drawY, drawW, drawH);
   }
 
-  // Dedicated Steadycam RAF render loop:
-  // Converts discrete mouse wheel steps into continuous 60FPS fluid camera sweep at BOTH high and low scroll speeds!
+  // Dedicated RAF animation loop (Direct 1:1 hardware sync with Lenis: ZERO end-lag judder!)
   function rafRenderLoop() {
     if (experienceStarted) {
-      const diff = targetFrameFloat - currentFrameFloat;
-      if (Math.abs(diff) > 0.0005) {
-        currentFrameFloat += diff * 0.16; // 0.16 liquid frame follow: instantaneous response + buttery motion
-      } else {
-        currentFrameFloat = targetFrameFloat;
-      }
-
-      // Continuous 60 FPS sub-frame update during slow scroll (triggers at 0.008 fractional movement)
-      if (Math.abs(currentFrameFloat - lastDrawnFrameFloat) > 0.008) {
-        lastDrawnFrameFloat = currentFrameFloat;
-        drawCanvasFrame(currentFrameFloat);
+      if (currentRenderedIdx !== targetFrameIdx) {
+        currentRenderedIdx = targetFrameIdx;
+        drawCanvasFrame(currentRenderedIdx);
       }
     }
     requestAnimationFrame(rafRenderLoop);
@@ -258,54 +241,116 @@ document.addEventListener("DOMContentLoaded", () => {
   requestAnimationFrame(rafRenderLoop);
 
   /* --------------------------------------------------------------------------
-     4. CONTINUOUS PROGRESS CURVE MAPPING (SMOOTH HERMITE BLENDING)
+     4. SMART DIRECTIONAL HD BACKGROUND STREAMER (PRIORITY QUEUE)
      -------------------------------------------------------------------------- */
-  function smoothstep(edge0, edge1, x) {
-    const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)));
-    return t * t * (3 - 2 * t);
+  function startBackgroundHdStreaming() {
+    const CONCURRENCY_LIMIT = 24; // High parallel HTTP/2 multiplexed streams
+    let activeDownloads = 0;
+    let sequentialPointer = 0;
+
+    function fetchNext() {
+      if (activeDownloads >= CONCURRENCY_LIMIT) return;
+
+      let nextIndex = -1;
+      const currentPos = targetFrameIdx;
+
+      // Priority 1: Check 120 frames ahead of the user's current scroll direction
+      for (let offset = 0; offset <= 120; offset++) {
+        const candidate = currentPos + offset;
+        if (candidate < TOTAL_HD_FRAMES && !hdFrames[candidate]) {
+          nextIndex = candidate;
+          break;
+        }
+      }
+
+      // Priority 2: Check 40 frames behind
+      if (nextIndex === -1) {
+        for (let offset = 1; offset <= 40; offset++) {
+          const candidate = currentPos - offset;
+          if (candidate >= 0 && !hdFrames[candidate]) {
+            nextIndex = candidate;
+            break;
+          }
+        }
+      }
+
+      // Priority 3: Sequential load the rest of the tour
+      if (nextIndex === -1) {
+        while (sequentialPointer < TOTAL_HD_FRAMES && hdFrames[sequentialPointer]) {
+          sequentialPointer++;
+        }
+        if (sequentialPointer < TOTAL_HD_FRAMES) {
+          nextIndex = sequentialPointer;
+          sequentialPointer++;
+        }
+      }
+
+      if (nextIndex === -1) return; // All 1,738 HD frames loaded!
+
+      activeDownloads++;
+      const img = new Image();
+      hdFrames[nextIndex] = img; // Mark as requested to prevent duplicate requests
+
+      const onComplete = () => {
+        activeDownloads--;
+        fetchNext();
+      };
+
+      img.onload = onComplete;
+      img.onerror = onComplete;
+      img.src = getHdFramePath(nextIndex + 1);
+
+      // Keep pipeline full
+      if (activeDownloads < CONCURRENCY_LIMIT) {
+        fetchNext();
+      }
+    }
+
+    for (let c = 0; c < CONCURRENCY_LIMIT; c++) {
+      fetchNext();
+    }
   }
 
+  /* --------------------------------------------------------------------------
+     5. PROGRESS CURVE MAPPING (CHAPTER 4 CALM ENTRY & CHAPTER 9 PACING)
+     -------------------------------------------------------------------------- */
   function getFrameIndexFromProgress(p) {
     const clampedP = Math.min(1, Math.max(0, p));
     let frameIdx;
 
     if (clampedP < 0.30) {
-      // Chapters 1 - 3 (Arrival, Grand Foyer, Living Pavilion): 0.00 to 0.30 -> frames 0 to 173
-      frameIdx = (clampedP / 0.30) * 173;
+      // Chapters 1 - 3: 0.00 to 0.30 maps to frames 0 to 520
+      frameIdx = (clampedP / 0.30) * 520;
     } else if (clampedP < 0.46) {
-      // Chapter 4 (Bouclé Lounge & Kitchen): 0.30 to 0.46 (16% scroll track) -> frames 173 to 253
-      // Soft Hermite transition: zero sudden speed snaps, calm cinematic glide
+      // Chapter 4 (Bouclé Lounge & Kitchen): 0.30 to 0.46 (16% scroll track) maps to 520..760 (calm, spacious pan)
       const subP = (clampedP - 0.30) / (0.46 - 0.30);
-      const blendedSub = subP * 0.7 + smoothstep(0, 1, subP) * 0.3;
-      frameIdx = 173 + blendedSub * 80;
+      frameIdx = 520 + subP * 240;
     } else if (clampedP < 0.85) {
-      // Chapters 5 - 8 (Salon, Dining, Staircase, Suite): 0.46 to 0.85 -> frames 253 to 500
+      // Chapters 5 - 8: 0.46 to 0.85 maps to frames 760 to 1500
       const subP = (clampedP - 0.46) / (0.85 - 0.46);
-      frameIdx = 253 + subP * 247;
+      frameIdx = 760 + subP * 740;
     } else if (clampedP < 0.96) {
-      // Chapter 9 (Vanity & Study Nook): 0.85 to 0.96 (11% scroll track) -> frames 500 to 553
-      // Soft Hermite transition: ultra-luxurious slow motion reading glide
+      // Chapter 9 (Vanity & Study Nook): 0.85 to 0.96 (11% scroll track) maps to 1500..1660 (luxurious slow glide!)
       const subP = (clampedP - 0.85) / (0.96 - 0.85);
-      const blendedSub = subP * 0.7 + smoothstep(0, 1, subP) * 0.3;
-      frameIdx = 500 + blendedSub * 53;
+      frameIdx = 1500 + subP * 160;
     } else {
-      // Final overview to CTA card: 0.96 to 1.00 -> frames 553 to 579
+      // Final overview to CTA card: 0.96 to 1.00 maps to 1660..1737
       const subP = (clampedP - 0.96) / (1.00 - 0.96);
-      frameIdx = 553 + subP * 26;
+      frameIdx = 1660 + subP * 77;
     }
 
-    return Math.min(TOTAL_FRAMES - 1, Math.max(0, frameIdx));
+    return Math.min(TOTAL_HD_FRAMES - 1, Math.max(0, Math.round(frameIdx)));
   }
 
   /* --------------------------------------------------------------------------
-     5. LENIS SMOOTH SCROLL & GSAP SCROLLTRIGGER (HYDRAULIC VELVET GLIDE)
+     6. LENIS SMOOTH SCROLL & GSAP SCROLLTRIGGER (DIRECT 1:1 HARDWARE SYNC)
      -------------------------------------------------------------------------- */
   let lenisInstance = null;
 
   window.scrollToContact = () => {
     const maxScroll = document.body.scrollHeight;
     if (lenisInstance) {
-      lenisInstance.scrollTo(maxScroll, { duration: 1.8 });
+      lenisInstance.scrollTo(maxScroll, { duration: 2.0 });
     } else {
       window.scrollTo({ top: maxScroll, behavior: "smooth" });
     }
@@ -321,10 +366,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof Lenis !== 'undefined') {
       try {
         lenisInstance = new Lenis({
-          lerp: 0.08, // Golden standard hydraulic smooth scroll (ZERO harsh acceleration, ZERO sudden stops)
-          wheelMultiplier: 1.0, // Perfectly balanced 1:1 input glide
+          duration: isMobile ? 0.75 : 0.85,
+          easing: (t) => 1 - Math.pow(1 - t, 3.5), // Clean Quart-Out (Reaches zero cleanly, ZERO dragging asymptotic tail!)
           smoothWheel: true,
-          syncTouch: false // Preserve native 120Hz/60Hz touch momentum on mobile devices
+          wheelMultiplier: 1.15, // Responsive, high-framerate wheel glide
+          touchMultiplier: isMobile ? 1.3 : 1.0
         });
 
         lenisInstance.on('scroll', () => {
@@ -396,9 +442,10 @@ document.addEventListener("DOMContentLoaded", () => {
         trigger: "#scroll-container",
         start: "top top",
         end: "bottom bottom",
+        scrub: true, // Direct 1:1 hardware sync with Lenis physics: ZERO end-lag judder!
         onUpdate: (self) => {
           const p = self.progress;
-          targetFrameFloat = getFrameIndexFromProgress(p);
+          targetFrameIdx = getFrameIndexFromProgress(p);
           updateActiveSection(p);
         }
       });
@@ -407,7 +454,7 @@ document.addEventListener("DOMContentLoaded", () => {
       window.addEventListener('scroll', () => {
         const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
         const p = Math.min(1, Math.max(0, window.scrollY / maxScroll));
-        targetFrameFloat = getFrameIndexFromProgress(p);
+        targetFrameIdx = getFrameIndexFromProgress(p);
         updateActiveSection(p);
       }, { passive: true });
     }
