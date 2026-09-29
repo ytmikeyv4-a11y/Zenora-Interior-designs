@@ -1,11 +1,11 @@
 /* ==========================================================================
    ZENORA DESIGNS // LUXURY ARCHITECTURAL 3D WALKTHROUGH ENGINE (580 FRAMES)
-   High-Performance 100% Preloaded Cinema Architecture:
+   High-Performance Continuous Cinema & Optical Sub-Frame Dissolve:
    - 100% Upfront Preloaded Memory Store: ZERO Missing Frames on 1st Scroll
-   - Steadycam Liquid Frame Interpolation (0.18 LERP): ZERO "Hand-Maar-Ke" Jerks
-   - Golden Standard Lenis Smooth Scroll (lerp: 0.08) for Pure Hydraulic Fluidity
+   - Optical Sub-Frame Dissolve Blending: INFINITE Frame Rate at Any Scroll Speed
+   - Steadycam Liquid LERP (0.16): ZERO "Hand-Maar-Ke" Steps or Slow-Scroll Stutters
+   - Golden-Standard Hydraulic Lenis (lerp: 0.08) for Pure Hydraulic Fluidity
    - Calibrated Continuous Hermite Curves for Chapter 4 (Lounge) & Chapter 9 (Vanity)
-   - GPU-Accelerated Hardware Filtering (Zero ClearRect / Zero Bicubic Shader Stalls)
    ========================================================================== */
 
 // 1. Prevent browser restoring previous scroll position upon refresh
@@ -146,11 +146,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* --------------------------------------------------------------------------
-     3. HIGH-PERFORMANCE DIRECT GPU CANVAS ENGINE (LIQUID STEADYCAM LERP)
+     3. HIGH-PERFORMANCE DIRECT GPU CANVAS ENGINE WITH OPTICAL SUB-FRAME DISSOLVE
      -------------------------------------------------------------------------- */
   let currentFrameFloat = 0;
   let targetFrameFloat = 0;
-  let lastRenderedIdx = -1;
+  let lastDrawnFrameFloat = -1;
 
   const resizeCanvas = () => {
     const isMobile = window.innerWidth <= 768;
@@ -164,47 +164,40 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "medium"; // Hardware texture filtering (10x faster than high, zero stutter!)
-    lastRenderedIdx = -1; // Force repaint
-    drawCanvasFrame(Math.round(currentFrameFloat));
+    ctx.imageSmoothingQuality = "medium"; // Hardware texture filtering (zero CPU shader overhead)
+    lastDrawnFrameFloat = -1; // Force repaint
+    drawCanvasFrame(currentFrameFloat);
   };
 
   window.addEventListener("resize", resizeCanvas);
   resizeCanvas();
 
-  function drawCanvasFrame(index) {
-    if (index < 0 || index >= TOTAL_FRAMES) return;
+  function drawCanvasFrame(frameFloat) {
+    if (frameFloat < 0 || frameFloat >= TOTAL_FRAMES) return;
 
-    // 1. Direct exact frame from 100% preloaded memory store
-    let img = frames[index];
+    const baseIdx = Math.floor(frameFloat);
+    const frac = frameFloat - baseIdx;
+    const nextIdx = Math.min(TOTAL_FRAMES - 1, baseIdx + 1);
 
-    // 2. Defensive nearest-neighbor lookup if single frame had network hitch
-    if (!img || !img.complete || img.naturalWidth === 0) {
+    // 1. Resolve primary base frame
+    let img1 = frames[baseIdx];
+    if (!img1 || !img1.complete || img1.naturalWidth === 0) {
       for (let d = 1; d <= 8; d++) {
-        const p = frames[index - d];
-        if (p && p.complete && p.naturalWidth > 0) {
-          img = p;
-          break;
-        }
-        const n = frames[index + d];
-        if (n && n.complete && n.naturalWidth > 0) {
-          img = n;
-          break;
-        }
+        const p = frames[baseIdx - d];
+        if (p && p.complete && p.naturalWidth > 0) { img1 = p; break; }
+        const n = frames[baseIdx + d];
+        if (n && n.complete && n.naturalWidth > 0) { img1 = n; break; }
       }
     }
 
-    // 3. Fallback to last valid image
-    if (!img || !img.complete || img.naturalWidth === 0) {
-      img = lastValidImg;
+    if (!img1 || !img1.complete || img1.naturalWidth === 0) {
+      img1 = lastValidImg;
     }
-
-    if (!img || !img.complete || img.naturalWidth === 0) return;
-    lastValidImg = img;
+    if (!img1 || !img1.complete || img1.naturalWidth === 0) return;
+    lastValidImg = img1;
 
     const w = window.innerWidth;
     const h = window.innerHeight;
-
     const screenAspect = w / h;
     const imgAspect = 16 / 9; // 1280x720 aspect ratio
 
@@ -222,25 +215,42 @@ document.addEventListener("DOMContentLoaded", () => {
       drawY = 0;
     }
 
-    // Integer-rounded coordinate drawing: Eliminates sub-pixel anti-aliasing overhead
-    ctx.drawImage(img, Math.round(drawX), Math.round(drawY), Math.round(drawW), Math.round(drawH));
+    const ix = Math.round(drawX);
+    const iy = Math.round(drawY);
+    const iw = Math.round(drawW);
+    const ih = Math.round(drawH);
+
+    // Render base frame (integer-rounded coordinates for fast GPU blit)
+    ctx.drawImage(img1, ix, iy, iw, ih);
+
+    // 2. Optical Sub-Frame Dissolve:
+    // When scrolling slowly between frames, dissolve smoothly to the next frame with alpha.
+    // This creates an analog optical motion blur, eliminating all stepping/stutter at low scroll speeds!
+    if (frac > 0.025 && nextIdx !== baseIdx) {
+      let img2 = frames[nextIdx];
+      if (img2 && img2.complete && img2.naturalWidth > 0) {
+        ctx.globalAlpha = frac;
+        ctx.drawImage(img2, ix, iy, iw, ih);
+        ctx.globalAlpha = 1.0;
+      }
+    }
   }
 
   // Dedicated Steadycam RAF render loop:
-  // Converts discrete mouse wheel steps into an analog, continuous 60FPS fluid camera sweep (ZERO hand-maar-ke!)
+  // Converts discrete mouse wheel steps into continuous 60FPS fluid camera sweep at BOTH high and low scroll speeds!
   function rafRenderLoop() {
     if (experienceStarted) {
       const diff = targetFrameFloat - currentFrameFloat;
-      if (Math.abs(diff) > 0.005) {
-        currentFrameFloat += diff * 0.18; // 0.18 liquid frame follow: instantaneous response + buttery motion
+      if (Math.abs(diff) > 0.0005) {
+        currentFrameFloat += diff * 0.16; // 0.16 liquid frame follow: instantaneous response + buttery motion
       } else {
         currentFrameFloat = targetFrameFloat;
       }
 
-      const drawIdx = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(currentFrameFloat)));
-      if (drawIdx !== lastRenderedIdx) {
-        lastRenderedIdx = drawIdx;
-        drawCanvasFrame(drawIdx);
+      // Continuous 60 FPS sub-frame update during slow scroll (triggers at 0.008 fractional movement)
+      if (Math.abs(currentFrameFloat - lastDrawnFrameFloat) > 0.008) {
+        lastDrawnFrameFloat = currentFrameFloat;
+        drawCanvasFrame(currentFrameFloat);
       }
     }
     requestAnimationFrame(rafRenderLoop);
