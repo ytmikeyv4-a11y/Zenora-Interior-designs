@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* --------------------------------------------------------------------------
      1. ASSET CONFIGURATION & TRUE 100% UPFRONT HD PRELOAD ENGINE
      -------------------------------------------------------------------------- */
-  const TOTAL_HD_FRAMES = 2111; // 100% Full-HD 60FPS Continuous Frames (Ch 7 & 9 Enhanced 2x Density)
+  const TOTAL_HD_FRAMES = 1843; // Exactly 1,843 Frames (Chapter 7 = 280, Chapter 9 = 200)
   const CONCURRENCY = 20;       // High-throughput parallel HTTP/2 multiplexed queue
   const hdFrames = new Array(TOTAL_HD_FRAMES);
 
@@ -304,23 +304,23 @@ document.addEventListener("DOMContentLoaded", () => {
       const subP = (clampedP - 0.455) / (0.635 - 0.455);
       frameIdx = 808 + subP * 362;
     } else if (clampedP < 0.810) {
-      // Chapter 7 (The Floating Staircase): 0.635 to 0.810 -> frames 1170 to 1637 (467 ENHANCED ULTRA-SMOOTH SHARP FRAMES!)
-      // Doubled frame density + deblurred optical flow: eliminating all motion blur and stair jerkiness!
+      // Chapter 7 (The Floating Staircase): 0.635 to 0.810 -> frames 1170 to 1450 (EXACTLY 280 FRAMES!)
+      // Optical flow sub-frame interpolation + deblurring for smooth, razor-sharp stair ascent
       const subP = (clampedP - 0.635) / (0.810 - 0.635);
-      frameIdx = 1170 + subP * 467;
+      frameIdx = 1170 + subP * 280;
     } else if (clampedP < 0.875) {
-      // Chapter 8 (Executive Master Suite): 0.810 to 0.875 -> frames 1637 to 1769 (132 frames)
+      // Chapter 8 (Executive Master Suite): 0.810 to 0.875 -> frames 1450 to 1582 (132 frames)
       const subP = (clampedP - 0.810) / (0.875 - 0.810);
-      frameIdx = 1637 + subP * 132;
+      frameIdx = 1450 + subP * 132;
     } else if (clampedP < 0.965) {
-      // Chapter 9 (Vanity & Study Nook): 0.875 to 0.965 -> frames 1769 to 2050 (281 ENHANCED ULTRA-SMOOTH SHARP FRAMES!)
-      // Doubled frame density + +300% deblurring creates a silky-smooth, crystal-clear linear glide into the vanity!
+      // Chapter 9 (Vanity & Study Nook): 0.875 to 0.965 -> frames 1582 to 1782 (EXACTLY 200 FRAMES!)
+      // Optical flow sub-frame interpolation + deblurring for ultra-smooth glide into the vanity
       const subP = (clampedP - 0.875) / (0.965 - 0.875);
-      frameIdx = 1769 + subP * 281;
+      frameIdx = 1582 + subP * 200;
     } else {
-      // Final overview to CTA card: 0.965 to 1.000 -> frames 2050 to 2110 (60 frames)
+      // Final overview to CTA card: 0.965 to 1.000 -> frames 1782 to 1842 (60 frames)
       const subP = (clampedP - 0.965) / (1.000 - 0.965);
-      frameIdx = 2050 + subP * 60;
+      frameIdx = 1782 + subP * 60;
     }
 
     return Math.min(TOTAL_HD_FRAMES - 1, Math.max(0, Math.round(frameIdx)));
