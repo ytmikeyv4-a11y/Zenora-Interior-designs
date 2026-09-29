@@ -42,7 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const preloaderBar = document.getElementById("preloaderBar");
   const preloaderPercent = document.getElementById("preloaderPercent");
   const preloaderSubText = document.getElementById("preloaderSubText");
-  const preloaderFrameCount = document.getElementById("preloaderFrameCount");
   const canvas = document.getElementById("home-canvas");
   const ctx = canvas.getContext("2d");
 
@@ -85,9 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const pct = Math.min(100, Math.floor((loadedCount / TOTAL_HD_FRAMES) * 100));
     if (preloaderBar) preloaderBar.style.width = `${pct}%`;
     if (preloaderPercent) preloaderPercent.textContent = pct;
-    if (preloaderFrameCount) {
-      preloaderFrameCount.textContent = `${loadedCount.toLocaleString()} / ${TOTAL_HD_FRAMES.toLocaleString()} FRAMES`;
-    }
 
     if (preloaderSubText) {
       if (pct < 16) {
