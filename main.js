@@ -39,7 +39,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const preloader = document.getElementById("preloader");
   const preloaderBar = document.getElementById("preloaderBar");
+  const preloaderPercent = document.getElementById("preloaderPercent");
   const preloaderSubText = document.getElementById("preloaderSubText");
+  const preloaderFrameCount = document.getElementById("preloaderFrameCount");
   const canvas = document.getElementById("home-canvas");
   const ctx = canvas.getContext("2d");
 
@@ -55,8 +57,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const pct = Math.min(100, Math.floor((loadedCount / TOTAL_HD_FRAMES) * 100));
     if (preloaderBar) preloaderBar.style.width = `${pct}%`;
+    if (preloaderPercent) preloaderPercent.textContent = pct;
+    if (preloaderFrameCount) {
+      preloaderFrameCount.textContent = `${loadedCount.toLocaleString()} / ${TOTAL_HD_FRAMES.toLocaleString()} FRAMES`;
+    }
+
     if (preloaderSubText) {
-      preloaderSubText.textContent = `INITIALIZING 3D VILLA SANCTUARY... ${pct}%`;
+      if (pct < 16) {
+        preloaderSubText.textContent = "ACQUIRING EXTERIOR SANCTUARY ARCHITECTURE...";
+      } else if (pct < 34) {
+        preloaderSubText.textContent = "CURATING GRAND FOYER & LIVING PAVILION...";
+      } else if (pct < 52) {
+        preloaderSubText.textContent = "CRAFTING BOUCLÉ LOUNGE & CHEF'S KITCHEN...";
+      } else if (pct < 70) {
+        preloaderSubText.textContent = "ILLUMINATING FLOATING MARBLE STAIRCASE...";
+      } else if (pct < 88) {
+        preloaderSubText.textContent = "DETAILING MASTER SUITE & MARBLE VANITY...";
+      } else if (pct < 100) {
+        preloaderSubText.textContent = "SYNCHRONIZING 1,738 FULL-HD 60FPS FRAMES...";
+      } else {
+        preloaderSubText.textContent = "SANCTUARY COMPLETE // STEPPING INSIDE";
+      }
     }
 
     // Immediately render frame 0 so the canvas is primed behind the preloader
@@ -67,8 +88,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Option B: Launch ONLY when 100% of all 1,738 Full-HD frames are resident in RAM!
     if (loadedCount >= TOTAL_HD_FRAMES && !experienceStarted) {
+      if (preloaderPercent) preloaderPercent.textContent = "100";
       if (preloaderSubText) {
-        preloaderSubText.textContent = "SANCTUARY READY // ENTERING EXPERIENCE";
+        preloaderSubText.textContent = "SANCTUARY COMPLETE // STEPPING INSIDE";
       }
       if (preloaderBar) {
         preloaderBar.style.width = "100%";
@@ -246,32 +268,34 @@ document.addEventListener("DOMContentLoaded", () => {
     if (clampedP < 0.145) {
       // Chapter 1 (Exterior Sanctuary Arrival): 0.000 to 0.145 -> frames 0 to 252 (252 frames)
       frameIdx = (clampedP / 0.145) * 252;
-    } else if (clampedP < 0.314) {
-      // Chapters 2 & 3 (Grand Foyer & Living Pavilion): 0.145 to 0.314 -> frames 252 to 545 (293 frames)
-      const subP = (clampedP - 0.145) / (0.314 - 0.145);
+    } else if (clampedP < 0.310) {
+      // Chapters 2 & 3 (Grand Foyer & Living Pavilion): 0.145 to 0.310 -> frames 252 to 545 (293 frames)
+      const subP = (clampedP - 0.145) / (0.310 - 0.145);
       frameIdx = 252 + subP * 293;
-    } else if (clampedP < 0.465) {
-      // Chapter 4 (Bouclé Lounge & Kitchen): 0.314 to 0.465 -> frames 545 to 808 (263 frames, calm spacious pan)
-      const subP = (clampedP - 0.314) / (0.465 - 0.314);
+    } else if (clampedP < 0.455) {
+      // Chapter 4 (Bouclé Lounge & Kitchen): 0.310 to 0.455 -> frames 545 to 808 (263 frames, calm spacious pan)
+      const subP = (clampedP - 0.310) / (0.455 - 0.310);
       frameIdx = 545 + subP * 263;
-    } else if (clampedP < 0.674) {
-      // Chapters 5 & 6 (Classical Salon & Dining / Library): 0.465 to 0.674 -> frames 808 to 1171 (363 frames)
-      const subP = (clampedP - 0.465) / (0.674 - 0.465);
+    } else if (clampedP < 0.635) {
+      // Chapters 5 & 6 (Classical Salon & Dining / Library): 0.455 to 0.635 -> frames 808 to 1171 (363 frames)
+      const subP = (clampedP - 0.455) / (0.635 - 0.455);
       frameIdx = 808 + subP * 363;
-    } else if (clampedP < 0.808) {
-      // Chapter 7 (The Floating Staircase): 0.674 to 0.808 -> frames 1171 to 1404 (233 FULL CONTINUOUS FRAMES!)
-      // Buttery smooth vertical ascent with illuminated marble steps and vertical fluted atrium!
-      const subP = (clampedP - 0.674) / (0.808 - 0.674);
+    } else if (clampedP < 0.810) {
+      // Chapter 7 (The Floating Staircase): 0.635 to 0.810 -> frames 1171 to 1404 (233 FULL CONTINUOUS FRAMES!)
+      // EXPANDED RUNWAY (17.5% of total scroll distance!): Calmed, majestic, regal slow ascent with illuminated marble steps!
+      const subP = (clampedP - 0.635) / (0.810 - 0.635);
       frameIdx = 1171 + subP * 233;
-    } else if (clampedP < 0.884) {
-      // Chapter 8 (Executive Master Suite): 0.808 to 0.884 -> frames 1404 to 1536 (132 frames)
-      const subP = (clampedP - 0.808) / (0.884 - 0.808);
+    } else if (clampedP < 0.875) {
+      // Chapter 8 (Executive Master Suite): 0.810 to 0.875 -> frames 1404 to 1536 (132 frames)
+      const subP = (clampedP - 0.810) / (0.875 - 0.810);
       frameIdx = 1404 + subP * 132;
     } else if (clampedP < 0.965) {
-      // Chapter 9 (Vanity & Study Nook): 0.884 to 0.965 -> frames 1536 to 1677 (141 FULL CONTINUOUS FRAMES, ultra slow glide!)
-      // Majestic slow-motion luxury glide, razor-sharp mirror reflections and joinery!
-      const subP = (clampedP - 0.884) / (0.965 - 0.884);
-      frameIdx = 1536 + subP * 141;
+      // Chapter 9 (Vanity & Study Nook): 0.875 to 0.965 -> frames 1536 to 1677 (141 FULL CONTINUOUS FRAMES)
+      // NON-LINEAR GENTLE ENTRY: Eased progression eliminates the abrupt high-speed rush through the doorway,
+      // creating an ultra-smooth cinematic glide into the vanity followed by pristine slow-motion inspection!
+      const subP = (clampedP - 0.875) / (0.965 - 0.875);
+      const easedP = Math.pow(subP, 1.38); // Gentle deceleration at start, smooth pan inside
+      frameIdx = 1536 + easedP * 141;
     } else {
       // Final overview to CTA card: 0.965 to 1.000 -> frames 1677 to 1737 (60 frames)
       const subP = (clampedP - 0.965) / (1.000 - 0.965);
@@ -349,22 +373,22 @@ document.addEventListener("DOMContentLoaded", () => {
       let targetSec = null;
       if (p >= 0.000 && p < 0.120) {
         targetSec = secCh1; // Terrace Sanctuary Opening Hero
-      } else if (p >= 0.150 && p < 0.210) {
+      } else if (p >= 0.145 && p < 0.205) {
         targetSec = secCh2; // Grand Foyer
-      } else if (p >= 0.235 && p < 0.295) {
+      } else if (p >= 0.230 && p < 0.290) {
         targetSec = secCh3; // Living Pavilion
-      } else if (p >= 0.325 && p < 0.435) {
+      } else if (p >= 0.320 && p < 0.425) {
         targetSec = secCh4; // Bouclé Lounge (Wide, crystal-clear reading window)
-      } else if (p >= 0.475 && p < 0.555) {
+      } else if (p >= 0.465 && p < 0.540) {
         targetSec = secCh5; // Classical Salon
-      } else if (p >= 0.590 && p < 0.655) {
+      } else if (p >= 0.565 && p < 0.620) {
         targetSec = secCh6; // Dining & Library
-      } else if (p >= 0.685 && p < 0.795) {
-        targetSec = secCh7; // Floating Staircase (Calibrated for 233-frame continuous ascent!)
+      } else if (p >= 0.645 && p < 0.795) {
+        targetSec = secCh7; // Floating Staircase (Calibrated for expanded 233-frame continuous ascent!)
       } else if (p >= 0.815 && p < 0.865) {
         targetSec = secCh8; // Executive Suite
-      } else if (p >= 0.890 && p < 0.955) {
-        targetSec = secCh9; // Vanity & Study Nook (141-frame slow-motion luxury glide!)
+      } else if (p >= 0.880 && p < 0.955) {
+        targetSec = secCh9; // Vanity & Study Nook (Gentle cinematic glide & inspection!)
       } else if (p >= 0.965) {
         targetSec = secCta; // Zenora Concierge & Digital Card
       }
