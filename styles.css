@@ -166,8 +166,8 @@ body.scroll-locked #preloader {
 /* Rotating Sacred Architectural Emblem Rings */
 .preloader-emblem-wrap {
   position: relative;
-  width: 130px;
-  height: 130px;
+  width: 154px;
+  height: 154px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -185,7 +185,7 @@ body.scroll-locked #preloader {
 
 .preloader-ring-inner {
   position: absolute;
-  inset: 14px;
+  inset: 15px;
   border-radius: 50%;
   border: 1px solid rgba(212, 175, 55, 0.2);
   border-top: 2px solid var(--gold-light);
@@ -204,12 +204,12 @@ body.scroll-locked #preloader {
 }
 
 .zenora-loader-icon {
-  width: 56px;
-  height: 56px;
+  width: 82px;
+  height: 82px;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 4px 22px rgba(212, 175, 55, 0.55));
+  filter: drop-shadow(0 4px 26px rgba(212, 175, 55, 0.65));
   animation: pulseEmblem 3s ease-in-out infinite;
 }
 
@@ -880,14 +880,14 @@ body.scroll-locked #preloader {
   }
 
   .preloader-emblem-wrap {
-    width: 104px;
-    height: 104px;
-    margin-bottom: 1.2rem;
+    width: 122px;
+    height: 122px;
+    margin-bottom: 1.4rem;
   }
 
   .zenora-loader-icon {
-    width: 44px;
-    height: 44px;
+    width: 66px;
+    height: 66px;
   }
 
   .preloader-kicker {
