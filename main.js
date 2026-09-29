@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* --------------------------------------------------------------------------
      1. ASSET CONFIGURATION & TRUE 100% UPFRONT HD PRELOAD ENGINE
      -------------------------------------------------------------------------- */
-  const TOTAL_HD_FRAMES = 1843; // Exactly 1,843 Frames (Chapter 7 = 280, Chapter 9 = 200)
+  const TOTAL_HD_FRAMES = 1738; // 100% Full-HD 60FPS Continuous Frames
   const CONCURRENCY = 20;       // High-throughput parallel HTTP/2 multiplexed queue
   const hdFrames = new Array(TOTAL_HD_FRAMES);
 
@@ -300,27 +300,29 @@ document.addEventListener("DOMContentLoaded", () => {
       const subP = (clampedP - 0.310) / (0.455 - 0.310);
       frameIdx = 545 + subP * 263;
     } else if (clampedP < 0.635) {
-      // Chapters 5 & 6 (Classical Salon & Dining / Library): 0.455 to 0.635 -> frames 808 to 1170 (362 frames)
+      // Chapters 5 & 6 (Classical Salon & Dining / Library): 0.455 to 0.635 -> frames 808 to 1171 (363 frames)
       const subP = (clampedP - 0.455) / (0.635 - 0.455);
-      frameIdx = 808 + subP * 362;
+      frameIdx = 808 + subP * 363;
     } else if (clampedP < 0.810) {
-      // Chapter 7 (The Floating Staircase): 0.635 to 0.810 -> frames 1170 to 1450 (EXACTLY 280 FRAMES!)
-      // Optical flow sub-frame interpolation + deblurring for smooth, razor-sharp stair ascent
+      // Chapter 7 (The Floating Staircase): 0.635 to 0.810 -> frames 1171 to 1404 (233 FULL CONTINUOUS FRAMES!)
+      // EXPANDED RUNWAY (17.5% of total scroll distance!): Calmed, majestic, regal slow ascent with illuminated marble steps!
       const subP = (clampedP - 0.635) / (0.810 - 0.635);
-      frameIdx = 1170 + subP * 280;
+      frameIdx = 1171 + subP * 233;
     } else if (clampedP < 0.875) {
-      // Chapter 8 (Executive Master Suite): 0.810 to 0.875 -> frames 1450 to 1582 (132 frames)
+      // Chapter 8 (Executive Master Suite): 0.810 to 0.875 -> frames 1404 to 1536 (132 frames)
       const subP = (clampedP - 0.810) / (0.875 - 0.810);
-      frameIdx = 1450 + subP * 132;
+      frameIdx = 1404 + subP * 132;
     } else if (clampedP < 0.965) {
-      // Chapter 9 (Vanity & Study Nook): 0.875 to 0.965 -> frames 1582 to 1782 (EXACTLY 200 FRAMES!)
-      // Optical flow sub-frame interpolation + deblurring for ultra-smooth glide into the vanity
+      // Chapter 9 (Vanity & Study Nook): 0.875 to 0.965 -> frames 1536 to 1677 (141 FULL CONTINUOUS FRAMES)
+      // NON-LINEAR GENTLE ENTRY: Eased progression eliminates the abrupt high-speed rush through the doorway,
+      // creating an ultra-smooth cinematic glide into the vanity followed by pristine slow-motion inspection!
       const subP = (clampedP - 0.875) / (0.965 - 0.875);
-      frameIdx = 1582 + subP * 200;
+      const easedP = Math.pow(subP, 1.38); // Gentle deceleration at start, smooth pan inside
+      frameIdx = 1536 + easedP * 141;
     } else {
-      // Final overview to CTA card: 0.965 to 1.000 -> frames 1782 to 1842 (60 frames)
+      // Final overview to CTA card: 0.965 to 1.000 -> frames 1677 to 1737 (60 frames)
       const subP = (clampedP - 0.965) / (1.000 - 0.965);
-      frameIdx = 1782 + subP * 60;
+      frameIdx = 1677 + subP * 60;
     }
 
     return Math.min(TOTAL_HD_FRAMES - 1, Math.max(0, Math.round(frameIdx)));
