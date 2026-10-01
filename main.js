@@ -352,7 +352,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof Lenis !== 'undefined') {
       try {
         lenisInstance = new Lenis({
-          duration: isMobile ? 0.80 : 0.95,
+          duration: isMobile ? 0.75 : 0.80,
           easing: (t) => 1 - Math.pow(1 - t, 3.5), // Clean Quart-Out (Decisive zero-lag finish, ZERO lingering crawl!)
           smoothWheel: true,
           wheelMultiplier: 1.15, // Responsive, high-framerate wheel glide
